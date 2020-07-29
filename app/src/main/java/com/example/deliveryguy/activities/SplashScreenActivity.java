@@ -11,7 +11,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.deliveryguy.MainActivity;
 import com.example.deliveryguy.R;
 
 public class SplashScreenActivity extends AppCompatActivity {

@@ -72,22 +72,26 @@ public class LoginActivity extends AppCompatActivity {
                     loginPassword.setError("Enter your password");
                     return;
                 }
-
-                firebaseAuth.signInWithEmailAndPassword(storeEmail, storePassword)
-                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(LoginActivity.this, "Logged in successfully",
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(LoginActivity.this, "Error " + task.getException().getMessage(),
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
+                userLogin(storeEmail, storePassword);
             }
         });
+    }
+
+    private void userLogin(String storeEmail, String storePassword) {
+        firebaseAuth.signInWithEmailAndPassword(storeEmail, storePassword)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(LoginActivity.this, "Logged in successfully",
+                                    Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Error " + task.getException().getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     private void initialize() {

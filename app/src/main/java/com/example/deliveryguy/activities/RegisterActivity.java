@@ -14,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.deliveryguy.MainActivity;
 import com.example.deliveryguy.R;
 import com.example.deliveryguy.bll.Validation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -72,7 +71,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(RegisterActivity.this,
                                             "User Created", Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                                    startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                                 } else {
                                     Toast.makeText(RegisterActivity.this,
                                             "Error " + task.getException().getMessage(),
