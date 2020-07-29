@@ -46,7 +46,7 @@ public class RegisterActivity extends AppCompatActivity {
         btnGoToLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 Pair[] pairs = new Pair[3];
                 pairs[0] = new Pair<View,String>(logo,"logoImg");
                 pairs[1] = new Pair<View,String>(tvTitle,"pageTitle");
