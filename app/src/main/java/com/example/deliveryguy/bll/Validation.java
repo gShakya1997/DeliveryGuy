@@ -20,6 +20,19 @@ public class Validation {
         return !storeName.isEmpty();
     }
 
+    public String validatePhone(String regPhone) {
+        if (regPhone.isEmpty()) {
+            throwError = "required";
+            return throwError;
+        } else if (regPhone.length() < 10) {
+            throwError = "invalidPhone";
+            return throwError;
+        } else {
+            throwError = "noError";
+            return throwError;
+        }
+    }
+
     public String validateEmail(String storeEmail) {
         if (storeEmail.isEmpty()) {
             throwError = "required";

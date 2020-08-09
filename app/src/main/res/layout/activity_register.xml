@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="-20dp"
             android:fontFamily="@font/bungee_inline"
-            android:text="Registration"
+            android:text="Verify your phone number"
             android:textColor="@color/colorPrimary"
             android:textSize="40sp"
             android:transitionName="pageTitle" />
@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Sign Up and join our team"
+            android:text="Enter your mobile number"
             android:textSize="18sp"
             android:textStyle="bold"
             android:transitionName="pageDesc" />
@@ -48,65 +48,89 @@
             android:layout_marginBottom="20dp"
             android:orientation="vertical">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/etStoreName"
+            <com.hbb20.CountryCodePicker
+                android:id="@+id/countryCodeHolder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Store name"
+                app:ccp_autoDetectCountry="true"
+                app:ccp_showFlag="true"
+                app:ccp_showFullName="true"
+                app:ccp_showNameCode="true" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/etPhoneNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Phone Number"
                 app:errorEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/ic_business_black_24dp"
+                    android:drawableStart="@drawable/ic_baseline_local_phone_24"
                     android:drawablePadding="20dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/etStoreEmail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Email"
-                app:errorEnabled="true">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/ic_email_black_24dp"
-                    android:drawablePadding="20dp" />
-            </com.google.android.material.textfield.TextInputLayout>
+            <!--            <com.google.android.material.textfield.TextInputLayout-->
+            <!--                android:id="@+id/etStoreName"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:hint="Store name"-->
+            <!--                app:errorEnabled="true">-->
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/etStorePassword"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Password"
-                app:errorEnabled="true"
-                app:passwordToggleEnabled="true">
+            <!--                <com.google.android.material.textfield.TextInputEditText-->
+            <!--                    android:layout_width="match_parent"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:drawableStart="@drawable/ic_business_black_24dp"-->
+            <!--                    android:drawablePadding="20dp" />-->
+            <!--            </com.google.android.material.textfield.TextInputLayout>-->
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/ic_password_black_24dp"
-                    android:drawablePadding="20dp"
-                    android:inputType="textPassword" />
-            </com.google.android.material.textfield.TextInputLayout>
+            <!--            <com.google.android.material.textfield.TextInputLayout-->
+            <!--                android:id="@+id/etStoreEmail"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:hint="Email"-->
+            <!--                app:errorEnabled="true">-->
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/etStoreCPassword"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Confirm Password"
-                app:errorEnabled="true"
-                app:passwordToggleEnabled="true">
+            <!--                <com.google.android.material.textfield.TextInputEditText-->
+            <!--                    android:layout_width="match_parent"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:drawableStart="@drawable/ic_email_black_24dp"-->
+            <!--                    android:drawablePadding="20dp" />-->
+            <!--            </com.google.android.material.textfield.TextInputLayout>-->
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/ic_password_black_24dp"
-                    android:drawablePadding="20dp"
-                    android:inputType="textPassword" />
-            </com.google.android.material.textfield.TextInputLayout>
+            <!--            <com.google.android.material.textfield.TextInputLayout-->
+            <!--                android:id="@+id/etStorePassword"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:hint="Password"-->
+            <!--                app:errorEnabled="true"-->
+            <!--                app:passwordToggleEnabled="true">-->
+
+            <!--                <com.google.android.material.textfield.TextInputEditText-->
+            <!--                    android:layout_width="match_parent"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:drawableStart="@drawable/ic_password_black_24dp"-->
+            <!--                    android:drawablePadding="20dp"-->
+            <!--                    android:inputType="textPassword" />-->
+            <!--            </com.google.android.material.textfield.TextInputLayout>-->
+
+            <!--            <com.google.android.material.textfield.TextInputLayout-->
+            <!--                android:id="@+id/etStoreCPassword"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:hint="Confirm Password"-->
+            <!--                app:errorEnabled="true"-->
+            <!--                app:passwordToggleEnabled="true">-->
+
+            <!--                <com.google.android.material.textfield.TextInputEditText-->
+            <!--                    android:layout_width="match_parent"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:drawableStart="@drawable/ic_password_black_24dp"-->
+            <!--                    android:drawablePadding="20dp"-->
+            <!--                    android:inputType="textPassword" />-->
+            <!--            </com.google.android.material.textfield.TextInputLayout>-->
 
         </LinearLayout>
 
@@ -115,17 +139,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
-            android:text="Register" />
+            android:onClick="callVerifyOTPScreen"
+            android:text="Continue" />
 
-        <Button
-            android:id="@+id/btnGoToLogin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="#00000000"
-            android:elevation="0dp"
-            android:text="Already a user? Sign In"
-            android:textColor="#000" />
+        <!--        <Button-->
+        <!--            android:id="@+id/btnGoToLogin"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginTop="10dp"-->
+        <!--            android:layout_marginBottom="10dp"-->
+        <!--            android:background="#00000000"-->
+        <!--            android:elevation="0dp"-->
+        <!--            android:text="Already a user? Sign In"-->
+        <!--            android:textColor="#000" />-->
     </LinearLayout>
 </ScrollView>

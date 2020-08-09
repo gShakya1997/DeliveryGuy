@@ -2,105 +2,117 @@ package com.example.deliveryguy.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.arch.core.executor.TaskExecutor;
 
-import android.app.ActivityOptions;
-import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Pair;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.chaos.view.PinView;
 import com.example.deliveryguy.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskExecutors;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
+
+import java.util.concurrent.TimeUnit;
 
 public class LoginActivity extends AppCompatActivity {
-    private TextInputLayout loginEmail, loginPassword;
-    private Button btnLogin, btnGoToRegister;
+    private PinView etVerifyCode;
+    private Button btnVerify;
     private TextView tvTitle, tvDesc;
     private ImageView logo;
-    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    String verificationCodeBySystem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         initialize();
-        actionButtons();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        firebaseAuth = FirebaseAuth.getInstance();
+        String phoneNo = getIntent().getStringExtra("PhoneNo");
+        sendVerificationCode(phoneNo);
     }
 
-    private void actionButtons() {
-        btnGoToRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                Pair[] pairs = new Pair[3];
-                pairs[0] = new Pair<View, String>(logo, "logoImg");
-                pairs[1] = new Pair<View, String>(tvTitle, "pageTitle");
-                pairs[2] = new Pair<View, String>(tvDesc, "pageDesc");
-
-                ActivityOptions activityOptions = null;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    activityOptions = ActivityOptions.makeSceneTransitionAnimation(LoginActivity.this, pairs);
-                }
-                startActivity(intent, activityOptions.toBundle());
-            }
-        });
-
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String storeEmail = loginEmail.getEditText().getText().toString().trim();
-                String storePassword = loginPassword.getEditText().getText().toString().trim();
-
-                if (TextUtils.isEmpty(storeEmail)) {
-                    loginEmail.setError("Enter your email address");
-                    return;
-                }
-
-                if (TextUtils.isEmpty(storePassword)) {
-                    loginPassword.setError("Enter your password");
-                    return;
-                }
-                userLogin(storeEmail, storePassword);
-            }
-        });
+    private void sendVerificationCode(String phoneNo) {
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                phoneNo,   // Phone number to verify
+                60,                 // Timeout duration
+                TimeUnit.SECONDS,   // Unit of timeout
+                TaskExecutors.MAIN_THREAD,               // Activity (for callback binding)
+                mCallbacks);        // OnVerificationStateChangedCallbacks
     }
 
-    private void userLogin(String storeEmail, String storePassword) {
-        firebaseAuth.signInWithEmailAndPassword(storeEmail, storePassword)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this, "Logged in successfully",
-                                    Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
-                        } else {
-                            Toast.makeText(LoginActivity.this, "Error " + task.getException().getMessage(),
-                                    Toast.LENGTH_SHORT).show();
-                        }
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+        @Override
+        public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+            super.onCodeSent(s, forceResendingToken);
+            verificationCodeBySystem = s;
+        }
+
+        @Override
+        public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+            String code = phoneAuthCredential.getSmsCode();
+            if (code != null) {
+                etVerifyCode.setText(code);
+//                progressOTP.setVisibility(View.VISIBLE);
+                verifyCode(code);
+            }
+        }
+
+        @Override
+        public void onVerificationFailed(@NonNull FirebaseException e) {
+            Toast.makeText(LoginActivity.this, "Error " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            System.out.println(e.getMessage());
+        }
+    };
+
+    private void verifyCode(String codeByUser) {
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationCodeBySystem, codeByUser);
+        signInWithPhone(credential);
+    }
+
+    private void signInWithPhone(PhoneAuthCredential credential) {
+        firebaseAuth.signInWithCredential(credential).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(LoginActivity.this, "Verification complete!", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                        Toast.makeText(LoginActivity.this, "Verification not completed! try again.", Toast.LENGTH_SHORT).show();
                     }
-                });
+//                    Toast.makeText(LoginActivity.this, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+//                    System.out.println(task.getException().getMessage());
+                }
+            }
+        });
     }
 
     private void initialize() {
-        loginEmail = findViewById(R.id.loginEmail);
-        loginPassword = findViewById(R.id.loginPassword);
-        btnLogin = findViewById(R.id.btnLogin);
-        btnGoToRegister = findViewById(R.id.btnGoToRegister);
+        etVerifyCode = findViewById(R.id.etVerifyCode);
+        btnVerify = findViewById(R.id.btnVerify);
         logo = findViewById(R.id.logo);
         tvTitle = findViewById(R.id.tvTitle);
         tvDesc = findViewById(R.id.tvDesc);
+    }
+
+    public void callNextScreenFromOTP(View view) {
+        String code = etVerifyCode.getText().toString();
+        if (!code.isEmpty()) {
+            verifyCode(code);
+        }
     }
 }

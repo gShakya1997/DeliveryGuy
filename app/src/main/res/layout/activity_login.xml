@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="-20dp"
             android:fontFamily="@font/bungee_inline"
-            android:text="Hello there, Welcome Back"
+            android:text="Verification code"
             android:textColor="#8c52ff"
             android:textSize="40sp"
             android:transitionName="pageTitle" />
@@ -36,86 +36,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Sign In to continue"
+            android:text="Enter the code sent to your number"
             android:textSize="18sp"
             android:textStyle="bold"
             android:transitionName="pageDesc" />
 
+        <com.chaos.view.PinView
+            android:id="@+id/etVerifyCode"
+            style="@style/PinWidget.PinView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:cursorVisible="true"
+            android:gravity="center"
+            android:inputType="number"
+            app:hideLineWhenFilled="true"
+            app:itemCount="6"
+            app:itemHeight="50dp"
+            app:itemRadius="5dp"
+            app:itemWidth="50dp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginTop="30dp"
             android:orientation="vertical">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/loginEmail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Email"
-                app:errorEnabled="true">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/ic_email_black_24dp"
-                    android:drawablePadding="20dp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/loginPassword"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Password"
-                app:errorEnabled="true"
-                app:passwordToggleEnabled="true">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/ic_password_black_24dp"
-                    android:drawablePadding="20dp"
-                    android:inputType="textPassword" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-        </LinearLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
             <Button
-                android:id="@+id/btnLogin"
-                android:layout_width="wrap_content"
+                android:id="@+id/btnVerify"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
                 android:background="@color/colorPrimary"
-                android:text="Login"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <Button
-                android:id="@+id/btnForgetPassword"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:background="#00000000"
-                android:text="Forget password?"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <Button
-            android:id="@+id/btnGoToRegister"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:background="#00000000"
-            android:text="New user? Sign up" />
-
+                android:onClick="callNextScreenFromOTP"
+                android:text="Verify" />
+        </LinearLayout>
     </LinearLayout>
-
 </ScrollView>
