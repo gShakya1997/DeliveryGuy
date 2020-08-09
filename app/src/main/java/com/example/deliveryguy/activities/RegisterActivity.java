@@ -29,7 +29,7 @@ public class RegisterActivity extends AppCompatActivity {
     private CountryCodePicker countryCodeHolder;
     private ImageView logo;
     private TextView tvTitle, tvDesc;
-    private Button btnRegister;
+    private Button btnContinue;
     private FirebaseAuth firebaseAuth;
     private Validation validation = new Validation();
 
@@ -59,25 +59,26 @@ public class RegisterActivity extends AppCompatActivity {
     private void initialize() {
         countryCodeHolder = findViewById(R.id.countryCodeHolder);
         etPhoneNumber = findViewById(R.id.etPhoneNumber);
-        btnRegister = findViewById(R.id.btnRegister);
+        btnContinue = findViewById(R.id.btnContinue);
         logo = findViewById(R.id.logo);
         tvTitle = findViewById(R.id.tvTitle);
         tvDesc = findViewById(R.id.tvDesc);
     }
 
     public void callVerifyOTPScreen(View view) {
-        if (!validatePhone())
+        if (!validatePhone()) {
             return;
-
+        }
         String phoneNumber = etPhoneNumber.getEditText().getText().toString().trim();
         String phoneNumberWithCountryCode = "+" + countryCodeHolder.getFullNumber() + phoneNumber;
 
         Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
         intent.putExtra("PhoneNo", phoneNumberWithCountryCode);
-        Pair[] pairs = new Pair[3];
+        Pair[] pairs = new Pair[4];
         pairs[0] = new Pair<View, String>(logo, "logoImg");
         pairs[1] = new Pair<View, String>(tvTitle, "pageTitle");
         pairs[2] = new Pair<View, String>(tvDesc, "pageDesc");
+        pairs[3] = new Pair<View, String>(btnContinue, "pageButton");
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation(RegisterActivity.this, pairs);
             startActivity(intent, activityOptions.toBundle());

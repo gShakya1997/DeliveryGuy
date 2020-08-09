@@ -4,7 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.arch.core.executor.TaskExecutor;
 
+import android.app.ActivityOptions;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -15,6 +18,7 @@ import android.widget.Toast;
 
 import com.chaos.view.PinView;
 import com.example.deliveryguy.R;
+import com.example.deliveryguy.activities.registerActivities.CustomerRegisterActivityOne;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskExecutors;
@@ -29,12 +33,12 @@ import com.google.firebase.auth.PhoneAuthProvider;
 import java.util.concurrent.TimeUnit;
 
 public class LoginActivity extends AppCompatActivity {
-    private PinView etVerifyCode;
+    private PinView pvVerificationCode;
     private Button btnVerify;
     private TextView tvTitle, tvDesc;
     private ImageView logo;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-    String verificationCodeBySystem;
+    String verificationCodeBySystem, phoneNo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         initialize();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        String phoneNo = getIntent().getStringExtra("PhoneNo");
+        phoneNo = getIntent().getStringExtra("PhoneNo");
         sendVerificationCode(phoneNo);
     }
 
@@ -66,9 +70,7 @@ public class LoginActivity extends AppCompatActivity {
         public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
             String code = phoneAuthCredential.getSmsCode();
             if (code != null) {
-                etVerifyCode.setText(code);
-//                progressOTP.setVisibility(View.VISIBLE);
-                verifyCode(code);
+                pvVerificationCode.setText(code);
             }
         }
 
@@ -90,19 +92,29 @@ public class LoginActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     Toast.makeText(LoginActivity.this, "Verification complete!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getApplicationContext(), CustomerRegisterActivityOne.class);
+                    intent.putExtra("PhoneNo", phoneNo);
+                    Pair[] pairs = new Pair[4];
+                    pairs[0] = new Pair<View, String>(logo, "logoImg");
+                    pairs[1] = new Pair<View, String>(tvTitle, "pageTitle");
+                    pairs[2] = new Pair<View, String>(tvDesc, "pageDesc");
+                    pairs[3] = new Pair<View, String>(btnVerify, "pageButton");
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                        ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation(LoginActivity.this, pairs);
+                        startActivity(intent, activityOptions.toBundle());
+                    }
+
                 } else {
                     if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                         Toast.makeText(LoginActivity.this, "Verification not completed! try again.", Toast.LENGTH_SHORT).show();
                     }
-//                    Toast.makeText(LoginActivity.this, "" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-//                    System.out.println(task.getException().getMessage());
                 }
             }
         });
     }
 
     private void initialize() {
-        etVerifyCode = findViewById(R.id.etVerifyCode);
+        pvVerificationCode = findViewById(R.id.pvVerificationCode);
         btnVerify = findViewById(R.id.btnVerify);
         logo = findViewById(R.id.logo);
         tvTitle = findViewById(R.id.tvTitle);
@@ -110,7 +122,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void callNextScreenFromOTP(View view) {
-        String code = etVerifyCode.getText().toString();
+        String code = pvVerificationCode.getText().toString();
         if (!code.isEmpty()) {
             verifyCode(code);
         }

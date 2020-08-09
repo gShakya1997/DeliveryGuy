@@ -42,7 +42,7 @@
             android:transitionName="pageDesc" />
 
         <com.chaos.view.PinView
-            android:id="@+id/etVerifyCode"
+            android:id="@+id/pvVerificationCode"
             style="@style/PinWidget.PinView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -69,6 +69,7 @@
                 android:layout_gravity="left"
                 android:background="@color/colorPrimary"
                 android:onClick="callNextScreenFromOTP"
+                android:transitionName="pageButton"
                 android:text="Verify" />
         </LinearLayout>
     </LinearLayout>
