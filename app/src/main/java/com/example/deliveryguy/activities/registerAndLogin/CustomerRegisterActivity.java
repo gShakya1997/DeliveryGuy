@@ -19,6 +19,7 @@ import com.example.deliveryguy.activities.DashboardActivity;
 import com.example.deliveryguy.activities.SplashScreenActivity;
 import com.example.deliveryguy.bll.Validation;
 import com.example.deliveryguy.models.Users;
+import com.example.deliveryguy.sharedPreferences.SharedPreferencesManager;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -69,6 +70,8 @@ public class CustomerRegisterActivity extends AppCompatActivity {
                 Users addUserData = new Users(storeName, storeEmail, phoneNo, storeType);
                 databaseReference.child(phoneNo).setValue(addUserData);
 
+                SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(CustomerRegisterActivity.this);
+                sharedPreferencesManager.createCurrentUserDetailSharedPreference(storeName, storeEmail, phoneNo, storeType);
 
                 Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
                 //Animation

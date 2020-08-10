@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.chaos.view.PinView;
 import com.example.deliveryguy.R;
 import com.example.deliveryguy.activities.DashboardActivity;
+import com.example.deliveryguy.sharedPreferences.SharedPreferencesManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskExecutors;
@@ -111,6 +112,14 @@ public class CodeVerificationActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
+                    String get_firebase_store_name = snapshot.child(phoneNo).child("storeName").getValue(String.class);
+                    String get_firebase_store_email = snapshot.child(phoneNo).child("storeEmail").getValue(String.class);
+                    String get_firebase_store_phoneNo = snapshot.child(phoneNo).child("storePhoneNo").getValue(String.class);
+                    String get_firebase_store_type = snapshot.child(phoneNo).child("storeType").getValue(String.class);
+
+                    SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(CodeVerificationActivity.this);
+                    sharedPreferencesManager.createCurrentUserDetailSharedPreference(get_firebase_store_name, get_firebase_store_email, get_firebase_store_phoneNo, get_firebase_store_type);
+
                     Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
                     startActivity(intent);
                 } else {
