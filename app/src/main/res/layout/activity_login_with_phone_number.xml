@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    tools:context=".activities.RegisterActivity">
+    tools:context=".activities.registerAndLogin.LoginWithPhoneNumber">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="-20dp"
             android:fontFamily="@font/bungee_inline"
-            android:text="Verify your phone number"
+            android:text="@string/verify_your_phone_number"
             android:textColor="@color/colorPrimary"
             android:textSize="40sp"
             android:transitionName="pageTitle" />
@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Enter your mobile number"
+            android:text="@string/enter_your_mobile_number"
             android:textSize="18sp"
             android:textStyle="bold"
             android:transitionName="pageDesc" />
@@ -62,7 +62,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Phone Number"
+                android:hint="@string/phone_number"
                 android:textColorHint="@color/black"
                 app:boxStrokeColor="@color/colorPrimary"
                 app:boxStrokeWidthFocused="2dp"
@@ -74,7 +74,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/ic_baseline_local_phone_24"
-                    android:drawablePadding="20dp" />
+                    android:drawablePadding="20dp"
+                    android:inputType="number" />
             </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
@@ -85,7 +86,7 @@
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
             android:onClick="callVerifyOTPScreen"
-            android:transitionName="pageButton"
-            android:text="Continue" />
+            android:text="@string/continue_label"
+            android:transitionName="pageButton" />
     </LinearLayout>
 </ScrollView>

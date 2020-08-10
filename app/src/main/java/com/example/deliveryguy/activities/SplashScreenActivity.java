@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.deliveryguy.R;
+import com.example.deliveryguy.activities.registerAndLogin.LoginWithPhoneNumber;
 
 public class SplashScreenActivity extends AppCompatActivity {
     Animation topAnim, botAnim;
@@ -35,7 +36,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent(SplashScreenActivity.this, RegisterActivity.class);
+                Intent intent = new Intent(SplashScreenActivity.this, LoginWithPhoneNumber.class);
                 startActivity(intent);
                 finish();
             }

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    tools:context=".activities.registerActivities.CustomerRegisterActivityOne">
+    tools:context=".activities.registerAndLogin.CustomerRegisterActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="-20dp"
             android:fontFamily="@font/bungee_inline"
-            android:text="Create an account"
+            android:text="@string/create_an_account"
             android:textColor="@color/colorPrimary"
             android:textSize="40sp"
             android:transitionName="pageTitle" />
@@ -35,7 +35,7 @@
             android:id="@+id/tvDesc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Provide your details"
+            android:text="@string/provide_your_details"
             android:textSize="18sp"
             android:textStyle="bold"
             android:transitionName="pageDesc" />
@@ -51,7 +51,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Store name"
+                android:hint="@string/store_name"
                 android:textColorHint="@color/black"
                 app:boxStrokeColor="@color/colorPrimary"
                 app:boxStrokeWidthFocused="2dp"
@@ -64,7 +64,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/ic_business_black_24dp"
-                    android:drawablePadding="20dp" />
+                    android:drawablePadding="20dp"
+                    android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -72,7 +73,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Email"
+                android:hint="@string/email"
                 android:textColorHint="@color/black"
                 app:boxStrokeColor="@color/colorPrimary"
                 app:boxStrokeWidthFocused="2dp"
@@ -85,7 +86,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/ic_email_black_24dp"
-                    android:drawablePadding="20dp" />
+                    android:drawablePadding="20dp"
+                    android:inputType="textEmailAddress" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
@@ -97,8 +99,8 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:textColor="@color/black"
-                    android:text="Store Type"/>
+                    android:text="@string/store_type"
+                    android:textColor="@color/black" />
 
                 <RadioGroup
                     android:id="@+id/rgStoreType"
@@ -112,19 +114,19 @@
                         android:id="@+id/rbOnline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Online" />
+                        android:text="@string/online" />
 
                     <RadioButton
                         android:id="@+id/rbOffline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Offline" />
+                        android:text="@string/offline" />
 
                     <RadioButton
                         android:id="@+id/rbBoth"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Both" />
+                        android:text="@string/both" />
 
                 </RadioGroup>
             </LinearLayout>
@@ -135,7 +137,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
-            android:text="Register"
+            android:text="@string/register"
             android:transitionName="pageButton" />
     </LinearLayout>
 

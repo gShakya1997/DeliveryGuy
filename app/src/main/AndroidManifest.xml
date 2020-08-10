@@ -17,8 +17,7 @@
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.registerActivities.CustomerRegisterActivityTwo" />
-        <activity android:name=".activities.registerActivities.CustomerRegisterActivityOne" />
+        <activity android:name=".activities.registerAndLogin.CustomerRegisterActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -28,8 +27,8 @@
             android:name=".activities.DeliveryPersonMap"
             android:label="@string/title_activity_delivery_person_map" />
         <activity android:name=".activities.DashboardActivity" />
-        <activity android:name=".activities.LoginActivity" />
-        <activity android:name=".activities.RegisterActivity" />
+        <activity android:name=".activities.registerAndLogin.CodeVerificationActivity" />
+        <activity android:name=".activities.registerAndLogin.LoginWithPhoneNumber" />
         <activity android:name=".activities.SplashScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

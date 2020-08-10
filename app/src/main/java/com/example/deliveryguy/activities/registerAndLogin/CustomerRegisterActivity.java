@@ -1,4 +1,4 @@
-package com.example.deliveryguy.activities.registerActivities;
+package com.example.deliveryguy.activities.registerAndLogin;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,7 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.deliveryguy.R;
-import com.example.deliveryguy.activities.RegisterActivity;
+import com.example.deliveryguy.activities.DashboardActivity;
 import com.example.deliveryguy.activities.SplashScreenActivity;
 import com.example.deliveryguy.bll.Validation;
 import com.example.deliveryguy.models.Users;
@@ -23,7 +23,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class CustomerRegisterActivityOne extends AppCompatActivity {
+public class CustomerRegisterActivity extends AppCompatActivity {
     private ImageView logo;
     private TextView tvTitle, tvDesc;
     private TextInputLayout etStoreName, etStoreEmail;
@@ -35,7 +35,7 @@ public class CustomerRegisterActivityOne extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_customer_register_one);
+        setContentView(R.layout.activity_customer_register);
         initialize();
         actionButtons();
     }
@@ -60,8 +60,7 @@ public class CustomerRegisterActivityOne extends AppCompatActivity {
                 int selectStoreType = rgStoreType.getCheckedRadioButtonId();
                 RadioButton radioButton = findViewById(selectStoreType);
                 String storeType = radioButton.getText().toString().trim();
-                String phoneNo = getIntent().getStringExtra("PhoneNo");
-                System.out.println(phoneNo);
+                String phoneNo = getIntent().getStringExtra("AddPhoneNo");
                 String storeName = etStoreName.getEditText().getText().toString().trim();
                 String storeEmail = etStoreEmail.getEditText().getText().toString().trim();
 
@@ -71,7 +70,7 @@ public class CustomerRegisterActivityOne extends AppCompatActivity {
                 databaseReference.child(phoneNo).setValue(addUserData);
 
 
-                Intent intent = new Intent(getApplicationContext(), SplashScreenActivity.class);
+                Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
                 //Animation
                 Pair[] pairs = new Pair[4];
                 pairs[0] = new Pair<View, String>(logo, "logoImg");
@@ -80,7 +79,7 @@ public class CustomerRegisterActivityOne extends AppCompatActivity {
                 pairs[3] = new Pair<View, String>(btnRegister, "pageButton");
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                     ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation
-                            (CustomerRegisterActivityOne.this, pairs);
+                            (CustomerRegisterActivity.this, pairs);
                     startActivity(intent, activityOptions.toBundle());
                 }
             }

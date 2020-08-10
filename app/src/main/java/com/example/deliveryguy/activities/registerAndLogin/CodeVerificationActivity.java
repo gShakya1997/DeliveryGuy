@@ -1,8 +1,7 @@
-package com.example.deliveryguy.activities;
+package com.example.deliveryguy.activities.registerAndLogin;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.arch.core.executor.TaskExecutor;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
@@ -12,27 +11,30 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.chaos.view.PinView;
 import com.example.deliveryguy.R;
-import com.example.deliveryguy.activities.registerActivities.CustomerRegisterActivityOne;
+import com.example.deliveryguy.activities.DashboardActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskExecutors;
-import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.concurrent.TimeUnit;
 
-public class LoginActivity extends AppCompatActivity {
+public class CodeVerificationActivity extends AppCompatActivity {
     private PinView pvVerificationCode;
     private Button btnVerify;
     private TextView tvTitle, tvDesc;
@@ -43,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_code_verification);
         initialize();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         phoneNo = getIntent().getStringExtra("PhoneNo");
@@ -76,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         public void onVerificationFailed(@NonNull FirebaseException e) {
-            Toast.makeText(LoginActivity.this, "Error " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(CodeVerificationActivity.this, "Error " + e.getMessage(), Toast.LENGTH_SHORT).show();
             System.out.println(e.getMessage());
         }
     };
@@ -87,28 +89,48 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void signInWithPhone(PhoneAuthCredential credential) {
-        firebaseAuth.signInWithCredential(credential).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+        firebaseAuth.signInWithCredential(credential).addOnCompleteListener(CodeVerificationActivity.this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(LoginActivity.this, "Verification complete!", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(getApplicationContext(), CustomerRegisterActivityOne.class);
-                    intent.putExtra("PhoneNo", phoneNo);
+                    Toast.makeText(CodeVerificationActivity.this, "Verification complete!", Toast.LENGTH_SHORT).show();
+                    checkUserByPhoneNumber();
+                } else {
+                    if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                        Toast.makeText(CodeVerificationActivity.this, "Verification not completed! try again.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+    }
+
+    private void checkUserByPhoneNumber() {
+        Query checkUser = FirebaseDatabase.getInstance().getReference("Users")
+                .orderByChild("storePhoneNo").equalTo(phoneNo);
+        checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(getApplicationContext(), CustomerRegisterActivity.class);
+                    intent.putExtra("AddPhoneNo", phoneNo);
                     Pair[] pairs = new Pair[4];
                     pairs[0] = new Pair<View, String>(logo, "logoImg");
                     pairs[1] = new Pair<View, String>(tvTitle, "pageTitle");
                     pairs[2] = new Pair<View, String>(tvDesc, "pageDesc");
                     pairs[3] = new Pair<View, String>(btnVerify, "pageButton");
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                        ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation(LoginActivity.this, pairs);
+                        ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation(CodeVerificationActivity.this, pairs);
                         startActivity(intent, activityOptions.toBundle());
                     }
-
-                } else {
-                    if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                        Toast.makeText(LoginActivity.this, "Verification not completed! try again.", Toast.LENGTH_SHORT).show();
-                    }
                 }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(CodeVerificationActivity.this, "" + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

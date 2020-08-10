@@ -2,4 +2,21 @@
     <string name="app_name">Delivery Guy</string>
     <string name="slogan">We serve passion</string>
     <string name="title_activity_delivery_person_map">Map</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="verify_your_phone_number">Verify your phone number</string>
+    <string name="enter_your_mobile_number">Enter your mobile number</string>
+    <string name="continue_label">Continue</string>
+    <string name="sign_out">Sign out</string>
+    <string name="create_an_account">Create an account</string>
+    <string name="provide_your_details">Provide your details</string>
+    <string name="store_name">Store name</string>
+    <string name="email">Email</string>
+    <string name="store_type">Store Type</string>
+    <string name="online">Online</string>
+    <string name="offline">Offline</string>
+    <string name="both">Both</string>
+    <string name="register">Register</string>
+    <string name="verification_code">Verification code</string>
+    <string name="enter_the_code_sent_to_your_number">Enter the code sent to your number</string>
+    <string name="verify">Verify</string>
 </resources>
