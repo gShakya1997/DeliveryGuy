@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_baseline_home_24"
+            android:title="@string/home" />
+        <item
+            android:id="@+id/nav_profile"
+            android:icon="@drawable/ic_baseline_person_24"
+            android:title="@string/profile" />
+    </group>
+    <item android:title="Action">
+        <menu>
+            <group>
+                <item
+                    android:id="@+id/btnSignOut"
+                    android:icon="@drawable/ic_baseline_exit_to_app_24"
+                    android:title="@string/sign_out" />
+                <item
+                    android:id="@+id/btnFeedback"
+                    android:icon="@drawable/ic_baseline_feedback_24"
+                    android:title="@string/give_feedback" />
+                <item
+                    android:id="@+id/btnShare"
+                    android:icon="@drawable/ic_baseline_share_24"
+                    android:title="@string/share" />
+            </group>
+        </menu>
+    </item>
+
+</menu>

@@ -19,4 +19,9 @@
     <string name="verification_code">Verification code</string>
     <string name="enter_the_code_sent_to_your_number">Enter the code sent to your number</string>
     <string name="verify">Verify</string>
+    <string name="enter_address">Enter address</string>
+    <string name="home">Home</string>
+    <string name="give_feedback">Give feedback</string>
+    <string name="share">Share</string>
+    <string name="profile">Profile</string>
 </resources>
