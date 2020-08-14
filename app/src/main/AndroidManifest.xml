@@ -31,11 +31,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity
-            android:name=".activities.DeliveryPersonMap"
-            android:label="@string/title_activity_delivery_person_map">
-
-        </activity>
         <activity android:name=".activities.DashboardActivity" />
         <activity android:name=".activities.registerAndLogin.CodeVerificationActivity" />
         <activity android:name=".activities.registerAndLogin.LoginWithPhoneNumber" />
