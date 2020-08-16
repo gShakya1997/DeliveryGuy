@@ -1,5 +1,6 @@
 package com.example.deliveryguy.activities.registerAndLogin;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ActivityOptions;
@@ -21,9 +22,13 @@ import com.example.deliveryguy.activities.SplashScreenActivity;
 import com.example.deliveryguy.bll.Validation;
 import com.example.deliveryguy.models.Users;
 import com.example.deliveryguy.sharedPreferences.SharedPreferencesManager;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class CustomerRegisterActivity extends AppCompatActivity {
     private ImageView logo;
@@ -67,10 +72,22 @@ public class CustomerRegisterActivity extends AppCompatActivity {
                 String storeName = etStoreName.getEditText().getText().toString().trim();
                 String storeEmail = etStoreEmail.getEditText().getText().toString().trim();
 
-                FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-                DatabaseReference databaseReference = firebaseDatabase.getReference("Users");
+                FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
                 Users addUserData = new Users(storeName, storeEmail, phoneNo, storeType);
-                databaseReference.child(phoneNo).setValue(addUserData);
+                firebaseFirestore.collection("users")
+                        .add(addUserData)
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Toast.makeText(CustomerRegisterActivity.this, "Successfully registered", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(CustomerRegisterActivity.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
 
                 SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(CustomerRegisterActivity.this);
                 sharedPreferencesManager.createCurrentUserDetailSharedPreference(storeName, storeEmail, phoneNo, storeType);
