@@ -17,8 +17,10 @@ import android.widget.Toast;
 import com.chaos.view.PinView;
 import com.example.deliveryguy.R;
 import com.example.deliveryguy.activities.DashboardActivity;
+import com.example.deliveryguy.models.Users;
 import com.example.deliveryguy.sharedPreferences.SharedPreferencesManager;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskExecutors;
 import com.google.firebase.FirebaseException;
@@ -32,6 +34,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +48,7 @@ public class CodeVerificationActivity extends AppCompatActivity {
     private TextView tvTitle, tvDesc;
     private ImageView logo;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     String verificationCodeBySystem, phoneNo;
 
     @Override
@@ -95,11 +103,48 @@ public class CodeVerificationActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     Toast.makeText(CodeVerificationActivity.this, "Verification complete!", Toast.LENGTH_SHORT).show();
-                    checkUserByPhoneNumber();
+                    checkRegisteredUser();
                 } else {
                     if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                         Toast.makeText(CodeVerificationActivity.this, "Verification not completed! try again.", Toast.LENGTH_SHORT).show();
                     }
+                }
+            }
+        });
+    }
+
+    private void checkRegisteredUser() {
+        DocumentReference documentReference = firebaseFirestore.collection("users").document(phoneNo);
+        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        String get_firebase_store_name = documentSnapshot.getString("storeName");
+                        String get_firebase_store_email = documentSnapshot.getString("storeEmail");
+                        String get_firebase_store_phoneNo = documentSnapshot.getString("storePhoneNo");
+                        String get_firebase_store_type = documentSnapshot.getString("storeType");
+                        SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(CodeVerificationActivity.this);
+                        sharedPreferencesManager.createCurrentUserDetailSharedPreference(get_firebase_store_name, get_firebase_store_email, get_firebase_store_phoneNo, get_firebase_store_type);
+
+                        Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent(getApplicationContext(), CustomerRegisterActivity.class);
+                        intent.putExtra("AddPhoneNo", phoneNo);
+                        Pair[] pairs = new Pair[4];
+                        pairs[0] = new Pair<View, String>(logo, "logoImg");
+                        pairs[1] = new Pair<View, String>(tvTitle, "pageTitle");
+                        pairs[2] = new Pair<View, String>(tvDesc, "pageDesc");
+                        pairs[3] = new Pair<View, String>(btnVerify, "pageButton");
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                            ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation(CodeVerificationActivity.this, pairs);
+                            startActivity(intent, activityOptions.toBundle());
+                        }
+                    }
+                } else {
+                    Toast.makeText(CodeVerificationActivity.this, "" + task.getException(), Toast.LENGTH_SHORT).show();
                 }
             }
         });

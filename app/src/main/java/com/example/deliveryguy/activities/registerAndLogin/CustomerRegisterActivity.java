@@ -72,13 +72,14 @@ public class CustomerRegisterActivity extends AppCompatActivity {
                 String storeName = etStoreName.getEditText().getText().toString().trim();
                 String storeEmail = etStoreEmail.getEditText().getText().toString().trim();
 
-                FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
                 Users addUserData = new Users(storeName, storeEmail, phoneNo, storeType);
-                firebaseFirestore.collection("users")
-                        .add(addUserData)
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+
+                FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+                firebaseFirestore.collection("users").document(phoneNo)
+                        .set(addUserData)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
-                            public void onSuccess(DocumentReference documentReference) {
+                            public void onSuccess(Void aVoid) {
                                 Toast.makeText(CustomerRegisterActivity.this, "Successfully registered", Toast.LENGTH_SHORT).show();
                             }
                         })
