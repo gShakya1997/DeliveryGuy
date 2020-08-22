@@ -1,4 +1,4 @@
-package com.example.deliveryguy.activities.registerAndLogin;
+package com.example.deliveryguy.activities.registerAndLogin.forUser;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,10 +17,8 @@ import android.widget.Toast;
 import com.chaos.view.PinView;
 import com.example.deliveryguy.R;
 import com.example.deliveryguy.activities.DashboardActivity;
-import com.example.deliveryguy.models.Users;
 import com.example.deliveryguy.sharedPreferences.SharedPreferencesManager;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskExecutors;
 import com.google.firebase.FirebaseException;
@@ -29,16 +27,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.concurrent.TimeUnit;
 
@@ -131,7 +122,7 @@ public class CodeVerificationActivity extends AppCompatActivity {
                         Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
                         startActivity(intent);
                     } else {
-                        Intent intent = new Intent(getApplicationContext(), CustomerRegisterActivity.class);
+                        Intent intent = new Intent(getApplicationContext(), UsersRegisterActivity.class);
                         intent.putExtra("AddPhoneNo", phoneNo);
                         Pair[] pairs = new Pair[4];
                         pairs[0] = new Pair<View, String>(logo, "logoImg");

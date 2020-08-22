@@ -1,4 +1,4 @@
-package com.example.deliveryguy.activities.registerAndLogin;
+package com.example.deliveryguy.activities.registerAndLogin.forUser;
 
 import androidx.appcompat.app.AppCompatActivity;
 

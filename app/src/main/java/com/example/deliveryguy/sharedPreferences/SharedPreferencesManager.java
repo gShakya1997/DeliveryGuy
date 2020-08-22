@@ -6,9 +6,9 @@ import android.content.SharedPreferences;
 import java.util.HashMap;
 
 public class SharedPreferencesManager {
-    SharedPreferences currentUserDetail;
-    SharedPreferences.Editor editor;
-    Context context;
+    private SharedPreferences currentUserDetail;
+    private SharedPreferences.Editor editor;
+    private Context context;
 
     public SharedPreferencesManager() {
     }
@@ -43,17 +43,5 @@ public class SharedPreferencesManager {
         hashMapCurrentUserData.put(KEY_STORE_TYPE, currentUserDetail.getString(KEY_STORE_TYPE, null));
 
         return hashMapCurrentUserData;
-    }
-
-    public boolean checkLogin() {
-        if (currentUserDetail.getBoolean(IS_LOGIN, false)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public void signOut() {
-        editor.clear().commit();
     }
 }

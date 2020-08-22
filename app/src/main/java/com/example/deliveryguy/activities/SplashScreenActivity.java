@@ -1,18 +1,9 @@
 package com.example.deliveryguy.activities;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.WindowManager;
@@ -20,13 +11,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.deliveryguy.R;
-import com.example.deliveryguy.activities.registerAndLogin.LoginWithPhoneNumber;
-import com.example.deliveryguy.sharedPreferences.SharedPreferencesManager;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
+import com.example.deliveryguy.activities.registerAndLogin.forUser.LoginWithPhoneNumber;
 
 public class SplashScreenActivity extends AppCompatActivity {
     Animation topAnim, botAnim;
@@ -54,9 +41,8 @@ public class SplashScreenActivity extends AppCompatActivity {
                     Intent intent = new Intent(SplashScreenActivity.this, DashboardActivity.class);
                     startActivity(intent);
                     finish();
-                    return;
                 }
-                Intent intent = new Intent(SplashScreenActivity.this, LoginWithPhoneNumber.class);
+                Intent intent = new Intent(SplashScreenActivity.this, UserTypeActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -65,7 +51,7 @@ public class SplashScreenActivity extends AppCompatActivity {
 
     private boolean checkUser() {
         SharedPreferences sharedPreferences = this.getSharedPreferences("currentUserDetail", MODE_PRIVATE);
-        boolean isLoggedIn = sharedPreferences.getBoolean("IsLoggedIn", false);
+        boolean isLoggedIn = sharedPreferences.getBoolean("IsLoggedIn", true);
         return isLoggedIn;
     }
 

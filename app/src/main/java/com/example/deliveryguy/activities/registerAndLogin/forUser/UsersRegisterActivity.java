@@ -1,4 +1,4 @@
-package com.example.deliveryguy.activities.registerAndLogin;
+package com.example.deliveryguy.activities.registerAndLogin.forUser;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,19 +18,15 @@ import android.widget.Toast;
 
 import com.example.deliveryguy.R;
 import com.example.deliveryguy.activities.DashboardActivity;
-import com.example.deliveryguy.activities.SplashScreenActivity;
 import com.example.deliveryguy.bll.Validation;
 import com.example.deliveryguy.models.Users;
 import com.example.deliveryguy.sharedPreferences.SharedPreferencesManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class CustomerRegisterActivity extends AppCompatActivity {
+public class UsersRegisterActivity extends AppCompatActivity {
     private ImageView logo;
     private TextView tvTitle, tvDesc;
     private TextInputLayout etStoreName, etStoreEmail;
@@ -42,7 +38,7 @@ public class CustomerRegisterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_customer_register);
+        setContentView(R.layout.activity_users_register);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         initialize();
         actionButtons();
@@ -80,17 +76,17 @@ public class CustomerRegisterActivity extends AppCompatActivity {
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Toast.makeText(CustomerRegisterActivity.this, "Successfully registered", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(UsersRegisterActivity.this, "Successfully registered", Toast.LENGTH_SHORT).show();
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(CustomerRegisterActivity.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(UsersRegisterActivity.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         });
 
-                SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(CustomerRegisterActivity.this);
+                SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(UsersRegisterActivity.this);
                 sharedPreferencesManager.createCurrentUserDetailSharedPreference(storeName, storeEmail, phoneNo, storeType);
 
                 Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
@@ -102,7 +98,7 @@ public class CustomerRegisterActivity extends AppCompatActivity {
                 pairs[3] = new Pair<View, String>(btnRegister, "pageButton");
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                     ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation
-                            (CustomerRegisterActivity.this, pairs);
+                            (UsersRegisterActivity.this, pairs);
                     startActivity(intent, activityOptions.toBundle());
                 }
             }
