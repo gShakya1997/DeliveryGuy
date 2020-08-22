@@ -14,6 +14,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
@@ -21,6 +22,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,22 +35,35 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.deliveryguy.R;
+import com.example.deliveryguy.models.Users;
+import com.example.deliveryguy.models.UsersLocation;
+import com.example.deliveryguy.sharedPreferences.SharedPreferencesManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class UserDashboardActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
@@ -65,7 +80,11 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
     private static final float END_SCALE = 0.7f;
 
     private FusedLocationProviderClient fusedLocationProviderClient;
+    private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+    private UsersLocation usersLocation;
+    private String currentUserPhoneNo;
     private Boolean locationPermissionGranted = false;
+    private GoogleMap googleMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +92,8 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
         setContentView(R.layout.activity_user_dashboard);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         initialize();
+        SharedPreferences sharedPreferences = this.getSharedPreferences("currentUserDetail", Context.MODE_PRIVATE);
+        currentUserPhoneNo = sharedPreferences.getString("storePhoneNo", null);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (locationPermissionGranted) {
             initializeMap();
@@ -95,7 +116,6 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
                 else drawer_layout.openDrawer(GravityCompat.START);
             }
         });
-
         animateNavigationDrawer();
     }
 
@@ -151,15 +171,15 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
     @Override
     public void onMapReady(GoogleMap googleMap) {
         if (locationPermissionGranted) {
-            getDeviceLocation();
+            getUserDetail();
             initializeSearch();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
             googleMap.setMyLocationEnabled(true);
-            googleMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
             googleMap.getUiSettings().setMyLocationButtonEnabled(true);
             googleMap.getUiSettings().setZoomControlsEnabled(true);
+            this.googleMap = googleMap;
         }
     }
 
@@ -239,18 +259,6 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    private void getLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            locationPermissionGranted = true;
-            initializeMap();
-        } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        }
-    }
 
     private void getDeviceLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -262,10 +270,66 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
                 if (task.isSuccessful()) {
                     Location location = task.getResult();
                     GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
+                    LatLng currentLocation = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
+                    CameraUpdate zoom;
+                    zoom = CameraUpdateFactory.zoomTo(16);
                     Toast.makeText(UserDashboardActivity.this, "Lat " + geoPoint.getLatitude() + "Long " + geoPoint.getLongitude(), Toast.LENGTH_SHORT).show();
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
+                    googleMap.animateCamera(zoom);
+                    googleMap.addMarker(new MarkerOptions().position(currentLocation).icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
+                    usersLocation.setGeoPoint(geoPoint);
+                    usersLocation.setTimestamp(null);
+                    saveUserLocation();
                 }
             }
         });
+    }
+
+    private void saveUserLocation() {
+        if (usersLocation != null) {
+            DocumentReference documentReference = firebaseFirestore.collection("users_location")
+                    .document(currentUserPhoneNo);
+            documentReference.set(usersLocation).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        System.out.println(usersLocation.getGeoPoint().getLatitude());
+                    }
+                }
+            });
+        }
+    }
+
+    private void getUserDetail() {
+        if (usersLocation == null) {
+            usersLocation = new UsersLocation();
+            DocumentReference userDocumentReference = firebaseFirestore.collection("users").document(currentUserPhoneNo);
+            userDocumentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        Users users = task.getResult().toObject(Users.class);
+                        usersLocation.setUsers(users);
+                        getDeviceLocation();
+                    }
+                }
+            });
+        } else {
+            getDeviceLocation();
+        }
+    }
+
+    private void getLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            locationPermissionGranted = true;
+            initializeMap();
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
     }
 
     private boolean checkMapServices() {

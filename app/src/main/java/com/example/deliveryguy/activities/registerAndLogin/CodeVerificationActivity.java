@@ -150,45 +150,6 @@ public class CodeVerificationActivity extends AppCompatActivity {
         });
     }
 
-    private void checkUserByPhoneNumber() {
-        Query checkUser = FirebaseDatabase.getInstance().getReference("Users")
-                .orderByChild("storePhoneNo").equalTo(phoneNo);
-        checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    String get_firebase_store_name = snapshot.child(phoneNo).child("storeName").getValue(String.class);
-                    String get_firebase_store_email = snapshot.child(phoneNo).child("storeEmail").getValue(String.class);
-                    String get_firebase_store_phoneNo = snapshot.child(phoneNo).child("storePhoneNo").getValue(String.class);
-                    String get_firebase_store_type = snapshot.child(phoneNo).child("storeType").getValue(String.class);
-
-                    SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(CodeVerificationActivity.this);
-                    sharedPreferencesManager.createCurrentUserDetailSharedPreference(get_firebase_store_name, get_firebase_store_email, get_firebase_store_phoneNo, get_firebase_store_type);
-
-                    Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
-                    startActivity(intent);
-                } else {
-                    Intent intent = new Intent(getApplicationContext(), CustomerRegisterActivity.class);
-                    intent.putExtra("AddPhoneNo", phoneNo);
-                    Pair[] pairs = new Pair[4];
-                    pairs[0] = new Pair<View, String>(logo, "logoImg");
-                    pairs[1] = new Pair<View, String>(tvTitle, "pageTitle");
-                    pairs[2] = new Pair<View, String>(tvDesc, "pageDesc");
-                    pairs[3] = new Pair<View, String>(btnVerify, "pageButton");
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                        ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation(CodeVerificationActivity.this, pairs);
-                        startActivity(intent, activityOptions.toBundle());
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(CodeVerificationActivity.this, "" + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     private void initialize() {
         pvVerificationCode = findViewById(R.id.pvVerificationCode);
         btnVerify = findViewById(R.id.btnVerify);
