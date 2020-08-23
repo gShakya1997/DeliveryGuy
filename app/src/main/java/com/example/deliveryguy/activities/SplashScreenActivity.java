@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.deliveryguy.R;
-import com.example.deliveryguy.activities.registerAndLogin.forUser.LoginWithPhoneNumber;
+import com.example.deliveryguy.activities.registerAndLogin.UsersLoginWithPhoneNumber;
 
 public class SplashScreenActivity extends AppCompatActivity {
     Animation topAnim, botAnim;
@@ -42,7 +42,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 }
-                Intent intent = new Intent(SplashScreenActivity.this, UserTypeActivity.class);
+                Intent intent = new Intent(SplashScreenActivity.this, UsersLoginWithPhoneNumber.class);
                 startActivity(intent);
                 finish();
             }

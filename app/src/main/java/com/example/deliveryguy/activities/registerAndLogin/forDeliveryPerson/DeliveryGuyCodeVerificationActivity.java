@@ -1,4 +1,4 @@
-package com.example.deliveryguy.activities.registerAndLogin.forUser;
+package com.example.deliveryguy.activities.registerAndLogin.forDeliveryPerson;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +17,9 @@ import android.widget.Toast;
 import com.chaos.view.PinView;
 import com.example.deliveryguy.R;
 import com.example.deliveryguy.activities.DashboardActivity;
+import com.example.deliveryguy.activities.UserDashboardActivity;
+import com.example.deliveryguy.activities.registerAndLogin.forUser.UsersCodeVerificationActivity;
+import com.example.deliveryguy.activities.registerAndLogin.forUser.UsersRegisterActivity;
 import com.example.deliveryguy.sharedPreferences.SharedPreferencesManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -33,21 +36,22 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.concurrent.TimeUnit;
 
-public class CodeVerificationActivity extends AppCompatActivity {
+public class DeliveryGuyCodeVerificationActivity extends AppCompatActivity {
+
     private PinView pvVerificationCode;
     private Button btnVerify;
     private TextView tvTitle, tvDesc;
     private ImageView logo;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
-    String verificationCodeBySystem, phoneNo;
+    private String verificationCodeBySystem, phoneNo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_code_verification);
-        initialize();
+        setContentView(R.layout.activity_delivery_guy_code_verification);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        binding();
         phoneNo = getIntent().getStringExtra("PhoneNo");
         sendVerificationCode(phoneNo);
     }
@@ -78,7 +82,7 @@ public class CodeVerificationActivity extends AppCompatActivity {
 
         @Override
         public void onVerificationFailed(@NonNull FirebaseException e) {
-            Toast.makeText(CodeVerificationActivity.this, "Error " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(DeliveryGuyCodeVerificationActivity.this, "Error " + e.getMessage(), Toast.LENGTH_SHORT).show();
             System.out.println(e.getMessage());
         }
     };
@@ -89,15 +93,15 @@ public class CodeVerificationActivity extends AppCompatActivity {
     }
 
     private void signInWithPhone(PhoneAuthCredential credential) {
-        firebaseAuth.signInWithCredential(credential).addOnCompleteListener(CodeVerificationActivity.this, new OnCompleteListener<AuthResult>() {
+        firebaseAuth.signInWithCredential(credential).addOnCompleteListener(DeliveryGuyCodeVerificationActivity.this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(CodeVerificationActivity.this, "Verification complete!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DeliveryGuyCodeVerificationActivity.this, "Verification complete!", Toast.LENGTH_SHORT).show();
                     checkRegisteredUser();
                 } else {
                     if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                        Toast.makeText(CodeVerificationActivity.this, "Verification not completed! try again.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DeliveryGuyCodeVerificationActivity.this, "Verification not completed! try again.", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -105,24 +109,24 @@ public class CodeVerificationActivity extends AppCompatActivity {
     }
 
     private void checkRegisteredUser() {
-        DocumentReference documentReference = firebaseFirestore.collection("users").document(phoneNo);
+        DocumentReference documentReference = firebaseFirestore.collection("delivery_person").document(phoneNo);
         documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot documentSnapshot = task.getResult();
                     if (documentSnapshot.exists()) {
-                        String get_firebase_store_name = documentSnapshot.getString("storeName");
-                        String get_firebase_store_email = documentSnapshot.getString("storeEmail");
-                        String get_firebase_store_phoneNo = documentSnapshot.getString("storePhoneNo");
-                        String get_firebase_store_type = documentSnapshot.getString("storeType");
-                        SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(CodeVerificationActivity.this);
-                        sharedPreferencesManager.createCurrentUserDetailSharedPreference(get_firebase_store_name, get_firebase_store_email, get_firebase_store_phoneNo, get_firebase_store_type);
-
-                        Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                        String get_firebase_delivery_person_name = documentSnapshot.getString("deliveryPersonName");
+                        String get_firebase_delivery_person_email = documentSnapshot.getString("deliveryPersonEmail");
+                        String get_firebase_delivery_person_phone_no = documentSnapshot.getString("deliveryPersonPhoneNo");
+                        String get_firebase_delivery_person_dob = documentSnapshot.getString("deliveryPersonDOB");
+                        String get_firebase_delivery_person_gender = documentSnapshot.getString("deliveryPersonGender");
+                        SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(DeliveryGuyCodeVerificationActivity.this);
+                        sharedPreferencesManager.createCurrentDeliveryPersonDetailSharedPreferences(get_firebase_delivery_person_name, get_firebase_delivery_person_email, get_firebase_delivery_person_phone_no, get_firebase_delivery_person_dob, get_firebase_delivery_person_gender);
+                        Intent intent = new Intent(getApplicationContext(), UserDashboardActivity.class);
                         startActivity(intent);
                     } else {
-                        Intent intent = new Intent(getApplicationContext(), UsersRegisterActivity.class);
+                        Intent intent = new Intent(getApplicationContext(), DeliveryGuyRegisterActivity.class);
                         intent.putExtra("AddPhoneNo", phoneNo);
                         Pair[] pairs = new Pair[4];
                         pairs[0] = new Pair<View, String>(logo, "logoImg");
@@ -130,18 +134,18 @@ public class CodeVerificationActivity extends AppCompatActivity {
                         pairs[2] = new Pair<View, String>(tvDesc, "pageDesc");
                         pairs[3] = new Pair<View, String>(btnVerify, "pageButton");
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                            ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation(CodeVerificationActivity.this, pairs);
+                            ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation(DeliveryGuyCodeVerificationActivity.this, pairs);
                             startActivity(intent, activityOptions.toBundle());
                         }
                     }
                 } else {
-                    Toast.makeText(CodeVerificationActivity.this, "" + task.getException(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DeliveryGuyCodeVerificationActivity.this, "" + task.getException(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
-    private void initialize() {
+    private void binding() {
         pvVerificationCode = findViewById(R.id.pvVerificationCode);
         btnVerify = findViewById(R.id.btnVerify);
         logo = findViewById(R.id.logo);
@@ -149,7 +153,7 @@ public class CodeVerificationActivity extends AppCompatActivity {
         tvDesc = findViewById(R.id.tvDesc);
     }
 
-    public void callNextScreenFromOTP(View view) {
+    public void callNextScreenFromOTPDeliveryPerson(View view) {
         String code = pvVerificationCode.getText().toString();
         if (!code.isEmpty()) {
             verifyCode(code);

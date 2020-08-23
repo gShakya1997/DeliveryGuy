@@ -27,4 +27,11 @@
     <string name="profile">Profile</string>
     <string name="i_m_a_user">I\'m a user</string>
     <string name="i_m_a_delivery_guy">I\'m a delivery guy</string>
+    <string name="full_name">Full name</string>
+    <string name="gender">Gender</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="select_your_age">Select your age</string>
+    <string name="continue_as_user">Continue As User</string>
+    <string name="continue_as_delivery_person">Continue As Delivery person</string>
 </resources>

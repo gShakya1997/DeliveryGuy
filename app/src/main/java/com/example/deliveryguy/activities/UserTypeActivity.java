@@ -2,10 +2,8 @@ package com.example.deliveryguy.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Pair;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -13,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.deliveryguy.R;
-import com.example.deliveryguy.activities.registerAndLogin.forUser.LoginWithPhoneNumber;
+import com.example.deliveryguy.activities.registerAndLogin.UsersLoginWithPhoneNumber;
 
 public class UserTypeActivity extends AppCompatActivity {
     private Button btnForUser, btnForDeliveryGuy;
@@ -34,7 +32,7 @@ public class UserTypeActivity extends AppCompatActivity {
     }
 
     public void GoToUserLogin(View view) {
-        Intent intent = new Intent(UserTypeActivity.this, LoginWithPhoneNumber.class);
+        Intent intent = new Intent(UserTypeActivity.this, UsersLoginWithPhoneNumber.class);
         startActivity(intent);
         finish();
     }

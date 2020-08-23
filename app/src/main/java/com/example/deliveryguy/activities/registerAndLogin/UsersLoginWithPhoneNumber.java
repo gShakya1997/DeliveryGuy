@@ -1,4 +1,4 @@
-package com.example.deliveryguy.activities.registerAndLogin.forUser;
+package com.example.deliveryguy.activities.registerAndLogin;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -20,26 +20,28 @@ import android.widget.TextView;
 
 import com.example.deliveryguy.R;
 import com.example.deliveryguy.activities.SplashScreenActivity;
+import com.example.deliveryguy.activities.registerAndLogin.forDeliveryPerson.DeliveryGuyCodeVerificationActivity;
+import com.example.deliveryguy.activities.registerAndLogin.forUser.UsersCodeVerificationActivity;
 import com.example.deliveryguy.bll.Validation;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.hbb20.CountryCodePicker;
 
-public class LoginWithPhoneNumber extends AppCompatActivity {
+public class UsersLoginWithPhoneNumber extends AppCompatActivity {
     private TextInputLayout etPhoneNumber;
     private CountryCodePicker countryCodeHolder;
     private ImageView logo;
     private TextView tvTitle, tvDesc;
-    private Button btnContinue;
+    private Button btnContinueAsUser, btnContinueAsDeliveryPerson;
     private FirebaseAuth firebaseAuth;
     private Validation validation = new Validation();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login_with_phone_number);
-        initialize();
+        setContentView(R.layout.activity_users_login_with_phone_number);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        binding();
         firebaseAuth = FirebaseAuth.getInstance();
     }
 
@@ -57,16 +59,17 @@ public class LoginWithPhoneNumber extends AppCompatActivity {
         }
     }
 
-    private void initialize() {
+    private void binding() {
         countryCodeHolder = findViewById(R.id.countryCodeHolder);
         etPhoneNumber = findViewById(R.id.etPhoneNumber);
-        btnContinue = findViewById(R.id.btnContinue);
+        btnContinueAsUser = findViewById(R.id.btnContinueAsUser);
+        btnContinueAsDeliveryPerson = findViewById(R.id.btnContinueAsDeliveryPerson);
         logo = findViewById(R.id.logo);
         tvTitle = findViewById(R.id.tvTitle);
         tvDesc = findViewById(R.id.tvDesc);
     }
 
-    public void callVerifyOTPScreen(View view) {
+    public void callVerifyDeliveryPersonOTPScreen(View view) {
         if (!isConnected(this)) {
             showCustomDialog();
             return;
@@ -77,21 +80,45 @@ public class LoginWithPhoneNumber extends AppCompatActivity {
         String phoneNumber = etPhoneNumber.getEditText().getText().toString().trim();
         String phoneNumberWithCountryCode = "+" + countryCodeHolder.getFullNumber() + phoneNumber;
 
-        Intent intent = new Intent(getApplicationContext(), CodeVerificationActivity.class);
+        Intent intent = new Intent(getApplicationContext(), DeliveryGuyCodeVerificationActivity.class);
         intent.putExtra("PhoneNo", phoneNumberWithCountryCode);
         Pair[] pairs = new Pair[4];
         pairs[0] = new Pair<View, String>(logo, "logoImg");
         pairs[1] = new Pair<View, String>(tvTitle, "pageTitle");
         pairs[2] = new Pair<View, String>(tvDesc, "pageDesc");
-        pairs[3] = new Pair<View, String>(btnContinue, "pageButton");
+        pairs[3] = new Pair<View, String>(btnContinueAsUser, "pageButton");
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation(LoginWithPhoneNumber.this, pairs);
+            ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation(UsersLoginWithPhoneNumber.this, pairs);
+            startActivity(intent, activityOptions.toBundle());
+        }
+    }
+
+    public void callVerifyUserOTPScreen(View view) {
+        if (!isConnected(this)) {
+            showCustomDialog();
+            return;
+        }
+        if (!validatePhone()) {
+            return;
+        }
+        String phoneNumber = etPhoneNumber.getEditText().getText().toString().trim();
+        String phoneNumberWithCountryCode = "+" + countryCodeHolder.getFullNumber() + phoneNumber;
+
+        Intent intent = new Intent(getApplicationContext(), UsersCodeVerificationActivity.class);
+        intent.putExtra("PhoneNo", phoneNumberWithCountryCode);
+        Pair[] pairs = new Pair[4];
+        pairs[0] = new Pair<View, String>(logo, "logoImg");
+        pairs[1] = new Pair<View, String>(tvTitle, "pageTitle");
+        pairs[2] = new Pair<View, String>(tvDesc, "pageDesc");
+        pairs[3] = new Pair<View, String>(btnContinueAsUser, "pageButton");
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation(UsersLoginWithPhoneNumber.this, pairs);
             startActivity(intent, activityOptions.toBundle());
         }
     }
 
     private void showCustomDialog() {
-        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(LoginWithPhoneNumber.this);
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(UsersLoginWithPhoneNumber.this);
         alertBuilder.setMessage("Please check Internet Connection")
                 .setCancelable(false)
                 .setPositiveButton("Connect", new DialogInterface.OnClickListener() {
@@ -111,7 +138,7 @@ public class LoginWithPhoneNumber extends AppCompatActivity {
         alertDialog.show();
     }
 
-    private boolean isConnected(LoginWithPhoneNumber loginWithPhoneNumber) {
+    private boolean isConnected(UsersLoginWithPhoneNumber loginWithPhoneNumber) {
         ConnectivityManager connectivityManager = (ConnectivityManager) loginWithPhoneNumber.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifiConnection = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         NetworkInfo mobileDataConnection = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);

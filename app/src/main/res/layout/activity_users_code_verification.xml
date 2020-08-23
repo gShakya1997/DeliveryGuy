@@ -5,19 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    tools:context=".activities.registerAndLogin.forUser.CodeVerificationActivity">
+    tools:context=".activities.registerAndLogin.forUser.UsersCodeVerificationActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:background="@color/colorPrimary"
         android:padding="30dp">
 
         <ImageView
             android:id="@+id/logo"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:src="@drawable/logopurple"
+            android:src="@drawable/logo"
             android:transitionName="logoImg" />
 
         <TextView
@@ -27,7 +28,7 @@
             android:layout_marginTop="-20dp"
             android:fontFamily="@font/bungee_inline"
             android:text="@string/verification_code"
-            android:textColor="#8c52ff"
+            android:textColor="@color/black"
             android:textSize="40sp"
             android:transitionName="pageTitle" />
 
@@ -38,6 +39,7 @@
             android:layout_marginTop="10dp"
             android:text="@string/enter_the_code_sent_to_your_number"
             android:textSize="18sp"
+            android:textColor="@color/black"
             android:textStyle="bold"
             android:transitionName="pageDesc" />
 
@@ -67,7 +69,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
-                android:background="@color/colorPrimary"
+                android:backgroundTint="@color/black"
                 android:onClick="callNextScreenFromOTP"
                 android:transitionName="pageButton"
                 android:text="@string/verify" />

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    tools:context=".activities.registerAndLogin.forUser.UsersRegisterActivity">
+    tools:context=".activities.registerAndLogin.forDeliveryPerson.DeliveryGuyRegisterActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -49,11 +49,11 @@
             android:orientation="vertical">
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/etStoreName"
+                android:id="@+id/etDeliveryPersonName"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/store_name"
+                android:hint="@string/full_name"
                 android:textColorHint="@color/black"
                 app:boxStrokeColor="@color/black"
                 app:boxStrokeWidthFocused="2dp"
@@ -65,13 +65,13 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/ic_baseline_domain_24"
+                    android:drawableStart="@drawable/ic_baseline_person_24"
                     android:drawablePadding="20dp"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/etStoreEmail"
+                android:id="@+id/etDeliveryPersonEmail"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -101,11 +101,11 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/store_type"
+                    android:text="@string/gender"
                     android:textColor="@color/black" />
 
                 <RadioGroup
-                    android:id="@+id/rgStoreType"
+                    android:id="@+id/rgGender"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
@@ -117,28 +117,44 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:buttonTint="@color/black"
-                        android:text="@string/online" />
+                        android:text="@string/male"
+                        android:textColor="@color/black" />
 
                     <RadioButton
                         android:id="@+id/rbOffline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:buttonTint="@color/black"
-                        android:text="@string/offline" />
-
-                    <RadioButton
-                        android:id="@+id/rbBoth"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:buttonTint="@color/black"
-                        android:text="@string/both" />
-
+                        android:text="@string/female"
+                        android:textColor="@color/black" />
                 </RadioGroup>
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/black" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/select_your_age"
+                android:textColor="@color/black" />
+
+            <DatePicker
+                android:id="@+id/datePickerAge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:calendarViewShown="false"
+                android:datePickerMode="spinner"
+                android:spinnersShown="true" />
+
         </LinearLayout>
 
         <Button
-            android:id="@+id/btnRegister"
+            android:id="@+id/btnDeliveryGuyRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/black"
