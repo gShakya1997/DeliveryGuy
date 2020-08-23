@@ -11,8 +11,11 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.deliveryguy.R;
+import com.example.deliveryguy.activities.dashboards.DeliveryPersonDashboardActivity;
+import com.example.deliveryguy.activities.dashboards.UserDashboardActivity;
 import com.example.deliveryguy.activities.registerAndLogin.UsersLoginWithPhoneNumber;
 
 public class SplashScreenActivity extends AppCompatActivity {
@@ -38,20 +41,31 @@ public class SplashScreenActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if (checkUser()) {
-                    Intent intent = new Intent(SplashScreenActivity.this, DashboardActivity.class);
+                    Intent intent = new Intent(SplashScreenActivity.this, UserDashboardActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else if (checkDeliveryPerson()) {
+                    Intent intent = new Intent(SplashScreenActivity.this, DeliveryPersonDashboardActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Intent intent = new Intent(SplashScreenActivity.this, UsersLoginWithPhoneNumber.class);
                     startActivity(intent);
                     finish();
                 }
-                Intent intent = new Intent(SplashScreenActivity.this, UsersLoginWithPhoneNumber.class);
-                startActivity(intent);
-                finish();
             }
         }, 3000);
     }
 
     private boolean checkUser() {
         SharedPreferences sharedPreferences = this.getSharedPreferences("currentUserDetail", MODE_PRIVATE);
-        boolean isLoggedIn = sharedPreferences.getBoolean("IsLoggedIn", true);
+        boolean isLoggedIn = sharedPreferences.getBoolean("IsLoggedAsUser", false);
+        return isLoggedIn;
+    }
+
+    private boolean checkDeliveryPerson() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences("currentUserDetail", MODE_PRIVATE);
+        boolean isLoggedIn = sharedPreferences.getBoolean("IsLoggedAsDeliveryPerson", false);
         return isLoggedIn;
     }
 

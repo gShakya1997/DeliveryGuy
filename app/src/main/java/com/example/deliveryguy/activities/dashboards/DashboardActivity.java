@@ -1,4 +1,4 @@
-package com.example.deliveryguy.activities;
+package com.example.deliveryguy.activities.dashboards;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.deliveryguy.R;
+import com.example.deliveryguy.activities.SplashScreenActivity;
 import com.example.deliveryguy.sharedPreferences.SharedPreferencesManager;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;

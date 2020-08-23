@@ -13,22 +13,22 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/logo"
+        android:icon="@drawable/applogo"
         android:label="@string/app_name"
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.registerAndLogin.forDeliveryPerson.DeliveryGuyRegisterActivity"></activity>
+        <activity android:name=".activities.dashboards.DeliveryPersonDashboardActivity"></activity>
+        <activity android:name=".activities.registerAndLogin.forDeliveryPerson.DeliveryGuyRegisterActivity" />
         <activity android:name=".activities.registerAndLogin.forDeliveryPerson.DeliveryGuyCodeVerificationActivity" />
-        <activity android:name=".activities.UserTypeActivity" />
-        <activity android:name=".activities.UserDashboardActivity" />
+        <activity android:name=".activities.dashboards.UserDashboardActivity" />
         <activity android:name=".activities.registerAndLogin.forUser.UsersRegisterActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".activities.DashboardActivity" />
+        <activity android:name=".activities.dashboards.DashboardActivity" />
         <activity android:name=".activities.registerAndLogin.forUser.UsersCodeVerificationActivity" />
         <activity android:name=".activities.registerAndLogin.UsersLoginWithPhoneNumber" />
         <activity android:name=".activities.SplashScreenActivity">

@@ -13,7 +13,8 @@ public class SharedPreferencesManager {
     public SharedPreferencesManager() {
     }
 
-    private static final String IS_LOGIN = "IsLoggedIn";
+    private static final String IS_LOGIN_USER = "IsLoggedAsUser";
+    private static final String IS_LOGIN_DELIVERY_PERSON = "IsLoggedAsDeliveryPerson";
 
     public static final String KEY_STORE_NAME = "storeName";
     public static final String KEY_STORE_EMAIL = "storeEmail";
@@ -33,7 +34,7 @@ public class SharedPreferencesManager {
     }
 
     public void createCurrentUserDetailSharedPreference(String storeName, String storeEmail, String storePhoneNo, String storeType) {
-        editor.putBoolean(IS_LOGIN, true);
+        editor.putBoolean(IS_LOGIN_USER, true);
         editor.putString(KEY_STORE_NAME, storeName);
         editor.putString(KEY_STORE_EMAIL, storeEmail);
         editor.putString(KEY_STORE_PHONE_NO, storePhoneNo);
@@ -51,7 +52,7 @@ public class SharedPreferencesManager {
     }
 
     public void createCurrentDeliveryPersonDetailSharedPreferences(String deliveryPersonName, String deliveryPersonEmail, String deliveryPersonPhoneNo, String deliveryPersonDOB, String deliveryPersonGender) {
-        editor.putBoolean(IS_LOGIN, true);
+        editor.putBoolean(IS_LOGIN_DELIVERY_PERSON, true);
         editor.putString(KEY_DELIVERY_PERSON_NAME, deliveryPersonName);
         editor.putString(KEY_DELIVERY_PERSON_EMAIL, deliveryPersonEmail);
         editor.putString(KEY_DELIVERY_PERSON_PHONE_NO, deliveryPersonPhoneNo);

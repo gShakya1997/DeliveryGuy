@@ -16,10 +16,7 @@ import android.widget.Toast;
 
 import com.chaos.view.PinView;
 import com.example.deliveryguy.R;
-import com.example.deliveryguy.activities.DashboardActivity;
-import com.example.deliveryguy.activities.UserDashboardActivity;
-import com.example.deliveryguy.activities.registerAndLogin.forUser.UsersCodeVerificationActivity;
-import com.example.deliveryguy.activities.registerAndLogin.forUser.UsersRegisterActivity;
+import com.example.deliveryguy.activities.dashboards.*;
 import com.example.deliveryguy.sharedPreferences.SharedPreferencesManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;

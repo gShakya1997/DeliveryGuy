@@ -18,7 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.deliveryguy.R;
-import com.example.deliveryguy.activities.DashboardActivity;
+import com.example.deliveryguy.activities.dashboards.DashboardActivity;
 import com.example.deliveryguy.activities.registerAndLogin.forUser.UsersRegisterActivity;
 import com.example.deliveryguy.bll.Validation;
 import com.example.deliveryguy.models.DeliveryPerson;

@@ -1,4 +1,4 @@
-package com.example.deliveryguy.activities;
+package com.example.deliveryguy.activities.dashboards;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,7 +22,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,9 +34,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.deliveryguy.R;
+import com.example.deliveryguy.activities.SplashScreenActivity;
+import com.example.deliveryguy.activities.dashboards.DashboardActivity;
 import com.example.deliveryguy.models.Users;
 import com.example.deliveryguy.models.UsersLocation;
-import com.example.deliveryguy.sharedPreferences.SharedPreferencesManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -47,10 +47,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -63,7 +61,6 @@ import com.google.firebase.firestore.GeoPoint;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class UserDashboardActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
@@ -72,11 +69,12 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
     private ImageView ivShowMenu;
     private LinearLayout main_content;
     private EditText etSearchAddress;
+    private GoogleMap googleMap;
 
     private static final float DEFAULT_ZOOM = 15f;
-    public static final int ERROR_DIALOG_REQUEST = 9001;
-    public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9002;
-    public static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9003;
+    private static final int ERROR_DIALOG_REQUEST = 9001;
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9002;
+    private static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9003;
     private static final float END_SCALE = 0.7f;
 
     private FusedLocationProviderClient fusedLocationProviderClient;
@@ -84,7 +82,6 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
     private UsersLocation usersLocation;
     private String currentUserPhoneNo;
     private Boolean locationPermissionGranted = false;
-    private GoogleMap googleMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,6 +154,12 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
                 startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
                 finish();
                 break;
+            case R.id.btnSignOut:
+                SharedPreferences sharedPreferences = getSharedPreferences("currentUserDetail", MODE_PRIVATE);
+                sharedPreferences.edit().clear().commit();
+                FirebaseAuth.getInstance().signOut();
+                Toast.makeText(UserDashboardActivity.this, "Sign out!", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), SplashScreenActivity.class));
         }
         return true;
     }
@@ -272,7 +275,7 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
                     GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
                     LatLng currentLocation = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
                     CameraUpdate zoom;
-                    zoom = CameraUpdateFactory.zoomTo(16);
+                    zoom = CameraUpdateFactory.zoomTo(DEFAULT_ZOOM);
                     Toast.makeText(UserDashboardActivity.this, "Lat " + geoPoint.getLatitude() + "Long " + geoPoint.getLongitude(), Toast.LENGTH_SHORT).show();
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
                     googleMap.animateCamera(zoom);
