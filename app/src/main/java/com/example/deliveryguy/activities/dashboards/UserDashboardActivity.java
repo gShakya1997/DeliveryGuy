@@ -22,6 +22,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -138,15 +139,6 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
             }
         });
     }
-
-    private void initialize() {
-        main_navigation_view = findViewById(R.id.main_navigation_view);
-        drawer_layout = findViewById(R.id.drawer_layout);
-        ivShowMenu = findViewById(R.id.ivShowMenu);
-        main_content = findViewById(R.id.main_content);
-        etSearchAddress = findViewById(R.id.etSearchAddress);
-    }
-
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
@@ -182,6 +174,7 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
             googleMap.setMyLocationEnabled(true);
             googleMap.getUiSettings().setMyLocationButtonEnabled(true);
             googleMap.getUiSettings().setZoomControlsEnabled(true);
+            googleMap.getUiSettings().setZoomGesturesEnabled(true);
             this.googleMap = googleMap;
         }
     }
@@ -373,11 +366,19 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        Intent enableGpsIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        Intent enableGpsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivityForResult(enableGpsIntent, PERMISSIONS_REQUEST_ENABLE_GPS);
                     }
                 });
         final AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    private void initialize() {
+        main_navigation_view = findViewById(R.id.main_navigation_view);
+        drawer_layout = findViewById(R.id.drawer_layout);
+        ivShowMenu = findViewById(R.id.ivShowMenu);
+        main_content = findViewById(R.id.main_content);
+        etSearchAddress = findViewById(R.id.etSearchAddress);
     }
 }
