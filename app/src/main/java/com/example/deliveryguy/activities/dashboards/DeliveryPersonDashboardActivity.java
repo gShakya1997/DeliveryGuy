@@ -9,6 +9,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -21,6 +22,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -31,6 +33,7 @@ import android.widget.Toast;
 import com.example.deliveryguy.R;
 import com.example.deliveryguy.models.DeliveryPerson;
 import com.example.deliveryguy.models.DeliveryPersonLocation;
+import com.example.deliveryguy.services.LocationService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -51,6 +54,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
+import java.util.ArrayList;
+
 public class DeliveryPersonDashboardActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer_layout_delivery_person;
     private NavigationView main_delivery_person_navigation_view;
@@ -69,6 +74,7 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
     private Boolean locationPermissionGranted = false;
     private DeliveryPersonLocation deliveryPersonLocation;
     private String currentDeliveryPersonPhoneNo;
+    private ArrayList<DeliveryPersonLocation> deliveryPersonLocationsArrayList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,9 +128,9 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
-            case PERMISSIONS_REQUEST_ENABLE_GPS:{
-                if (locationPermissionGranted){
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_ENABLE_GPS: {
+                if (locationPermissionGranted) {
                     initializeMap();
                 } else {
                     getLocationPermission();
@@ -171,6 +177,7 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
                     deliveryPersonLocation.setGeoPoint(geoPoint);
                     deliveryPersonLocation.setTimeStamp(null);
                     saveDeliveryPersonLocation();
+                    startLocationService();
                 }
             }
         });
@@ -307,6 +314,29 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        return false;
+    }
+
+    private void startLocationService() {
+        if (!isLocationServiceRunning()) {
+            Intent serviceIntent = new Intent(this, LocationService.class);
+//        this.startService(serviceIntent);
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                DeliveryPersonDashboardActivity.this.startForegroundService(serviceIntent);
+            } else {
+                startService(serviceIntent);
+            }
+        }
+    }
+
+    private boolean isLocationServiceRunning() {
+        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if ("com.example.deliveryguy.services.LocationService".equals(service.service.getClassName())) {
+                return true;
+            }
+        }
         return false;
     }
 

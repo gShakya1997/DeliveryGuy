@@ -1,7 +1,5 @@
 package com.example.deliveryguy.models;
 
-import com.example.deliveryguy.activities.registerAndLogin.forDeliveryPerson.DeliveryGuyRegisterActivity;
-
 public class DeliveryPerson {
     private String deliveryPersonName;
     private String deliveryPersonEmail;
