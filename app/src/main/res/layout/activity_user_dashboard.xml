@@ -64,11 +64,22 @@
                 android:layout_centerVertical="true"
                 android:drawableLeft="@drawable/ic_baseline_location_on_24"
                 android:drawableRight="@drawable/ic_baseline_search_24"
+                android:drawablePadding="10dp"
                 android:hint="@string/enter_destination"
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:textColor="@color/black"
                 android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/btnRequestDelivery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/etSearchAddress"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:backgroundTint="@color/black"
+                android:text="@string/send_request" />
         </RelativeLayout>
 
     </LinearLayout>

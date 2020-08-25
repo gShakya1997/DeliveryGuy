@@ -28,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -37,6 +38,8 @@ import android.widget.Toast;
 import com.example.deliveryguy.R;
 import com.example.deliveryguy.activities.SplashScreenActivity;
 import com.example.deliveryguy.activities.dashboards.DashboardActivity;
+import com.example.deliveryguy.models.DeliveryPersonLocation;
+import com.example.deliveryguy.models.DeliveryRequest;
 import com.example.deliveryguy.models.Users;
 import com.example.deliveryguy.models.UsersLocation;
 import com.google.android.gms.common.ConnectionResult;
@@ -52,6 +55,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -70,6 +74,7 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
     private ImageView ivShowMenu;
     private LinearLayout main_content;
     private EditText etSearchAddress;
+    private Button btnRequestDelivery;
     private GoogleMap googleMap;
 
     private static final float DEFAULT_ZOOM = 15f;
@@ -81,6 +86,7 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
     private FusedLocationProviderClient fusedLocationProviderClient;
     private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     private UsersLocation usersLocation;
+    private DeliveryRequest deliveryRequest;
     private String currentUserPhoneNo;
     private Boolean locationPermissionGranted = false;
 
@@ -90,6 +96,8 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
         setContentView(R.layout.activity_user_dashboard);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         initialize();
+        actionButtons();
+
         SharedPreferences sharedPreferences = this.getSharedPreferences("currentUserDetail", Context.MODE_PRIVATE);
         currentUserPhoneNo = sharedPreferences.getString("storePhoneNo", null);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -99,6 +107,28 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
             getLocationPermission();
         }
         navigationDrawer();
+    }
+    private void actionButtons(){
+        btnRequestDelivery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveRequestDeliveryDetail();
+            }
+        });
+    }
+
+    private void saveRequestDeliveryDetail() {
+        if (deliveryRequest != null){
+            DocumentReference documentReference = firebaseFirestore.collection("delivery_request").document(currentUserPhoneNo);
+            documentReference.set(deliveryRequest).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        btnRequestDelivery.setText("Requesting.........");
+                    }
+                }
+            });
+        }
     }
 
     private void navigationDrawer() {
@@ -139,6 +169,7 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
             }
         });
     }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
@@ -255,7 +286,6 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-
     private void getDeviceLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -272,9 +302,12 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
                     Toast.makeText(UserDashboardActivity.this, "Lat " + geoPoint.getLatitude() + "Long " + geoPoint.getLongitude(), Toast.LENGTH_SHORT).show();
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
                     googleMap.animateCamera(zoom);
-                    googleMap.addMarker(new MarkerOptions().position(currentLocation).icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
+                    googleMap.addMarker(new MarkerOptions().position(currentLocation).icon(BitmapDescriptorFactory.fromResource(R.drawable.location)).title("Pickup Location"));
                     usersLocation.setGeoPoint(geoPoint);
                     usersLocation.setTimestamp(null);
+                    deliveryRequest = new DeliveryRequest();
+                    deliveryRequest.setRequestPoint(geoPoint);
+                    deliveryRequest.setTimeStamp(null);
                     saveUserLocation();
                 }
             }
@@ -380,5 +413,6 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
         ivShowMenu = findViewById(R.id.ivShowMenu);
         main_content = findViewById(R.id.main_content);
         etSearchAddress = findViewById(R.id.etSearchAddress);
+        btnRequestDelivery = findViewById(R.id.btnRequestDelivery);
     }
 }

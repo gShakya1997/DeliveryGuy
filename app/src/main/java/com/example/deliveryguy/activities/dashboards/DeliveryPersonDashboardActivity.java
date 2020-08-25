@@ -22,7 +22,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -54,8 +53,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
-import java.util.ArrayList;
-
 public class DeliveryPersonDashboardActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer_layout_delivery_person;
     private NavigationView main_delivery_person_navigation_view;
@@ -74,7 +71,6 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
     private Boolean locationPermissionGranted = false;
     private DeliveryPersonLocation deliveryPersonLocation;
     private String currentDeliveryPersonPhoneNo;
-    private ArrayList<DeliveryPersonLocation> deliveryPersonLocationsArrayList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,16 +96,17 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        this.googleMapDeliveryPerson = googleMap;
+
         if (locationPermissionGranted) {
             getDeliveryPersonDetail();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-            googleMap.setMyLocationEnabled(true);
-            googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-            googleMap.getUiSettings().setZoomControlsEnabled(true);
-            googleMap.getUiSettings().setZoomGesturesEnabled(true);
-            this.googleMapDeliveryPerson = googleMap;
+            googleMapDeliveryPerson.setMyLocationEnabled(true);
+            googleMapDeliveryPerson.getUiSettings().setMyLocationButtonEnabled(true);
+            googleMapDeliveryPerson.getUiSettings().setZoomControlsEnabled(true);
+            googleMapDeliveryPerson.getUiSettings().setZoomGesturesEnabled(true);
         }
     }
 

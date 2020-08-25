@@ -34,4 +34,5 @@
     <string name="select_your_age">Select your age</string>
     <string name="continue_as_user">Continue As User</string>
     <string name="continue_as_delivery_person">Continue As Delivery person</string>
+    <string name="send_request">Request delivery guy</string>
 </resources>
