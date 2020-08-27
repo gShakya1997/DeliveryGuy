@@ -106,7 +106,7 @@ public class DeliveryGuyCodeVerificationActivity extends AppCompatActivity {
     }
 
     private void checkRegisteredUser() {
-        DocumentReference documentReference = firebaseFirestore.collection("delivery_person").document(phoneNo);
+        DocumentReference documentReference = firebaseFirestore.collection("delivery_person").document(FirebaseAuth.getInstance().getUid());
         documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -118,9 +118,10 @@ public class DeliveryGuyCodeVerificationActivity extends AppCompatActivity {
                         String get_firebase_delivery_person_phone_no = documentSnapshot.getString("deliveryPersonPhoneNo");
                         String get_firebase_delivery_person_dob = documentSnapshot.getString("deliveryPersonDOB");
                         String get_firebase_delivery_person_gender = documentSnapshot.getString("deliveryPersonGender");
+                        String get_firebase_delivery_person_ID = documentSnapshot.getString("deliveryPersonID");
                         SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(DeliveryGuyCodeVerificationActivity.this);
-                        sharedPreferencesManager.createCurrentDeliveryPersonDetailSharedPreferences(get_firebase_delivery_person_name, get_firebase_delivery_person_email, get_firebase_delivery_person_phone_no, get_firebase_delivery_person_dob, get_firebase_delivery_person_gender);
-                        Intent intent = new Intent(getApplicationContext(), UserDashboardActivity.class);
+                        sharedPreferencesManager.createCurrentDeliveryPersonDetailSharedPreferences(get_firebase_delivery_person_name, get_firebase_delivery_person_email, get_firebase_delivery_person_phone_no, get_firebase_delivery_person_dob, get_firebase_delivery_person_gender, get_firebase_delivery_person_ID);
+                        Intent intent = new Intent(getApplicationContext(), DeliveryPersonDashboardActivity.class);
                         startActivity(intent);
                     } else {
                         Intent intent = new Intent(getApplicationContext(), DeliveryGuyRegisterActivity.class);

@@ -24,6 +24,7 @@ import com.example.deliveryguy.sharedPreferences.SharedPreferencesManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class UsersRegisterActivity extends AppCompatActivity {
@@ -67,11 +68,12 @@ public class UsersRegisterActivity extends AppCompatActivity {
                 String phoneNo = getIntent().getStringExtra("AddPhoneNo");
                 String storeName = etStoreName.getEditText().getText().toString().trim();
                 String storeEmail = etStoreEmail.getEditText().getText().toString().trim();
+                String userID = FirebaseAuth.getInstance().getUid();
 
-                Users addUserData = new Users(storeName, storeEmail, phoneNo, storeType);
+                Users addUserData = new Users(storeName, storeEmail, phoneNo, storeType, userID);
 
                 FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
-                firebaseFirestore.collection("users").document(phoneNo)
+                firebaseFirestore.collection("users").document(userID)
                         .set(addUserData)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -87,7 +89,7 @@ public class UsersRegisterActivity extends AppCompatActivity {
                         });
 
                 SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(UsersRegisterActivity.this);
-                sharedPreferencesManager.createCurrentUserDetailSharedPreference(storeName, storeEmail, phoneNo, storeType);
+                sharedPreferencesManager.createCurrentUserDetailSharedPreference(storeName, storeEmail, phoneNo, storeType, userID);
 
                 Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
                 //Animation

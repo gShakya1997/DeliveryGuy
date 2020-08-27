@@ -106,7 +106,7 @@ public class UsersCodeVerificationActivity extends AppCompatActivity {
     }
 
     private void checkRegisteredUser() {
-        DocumentReference documentReference = firebaseFirestore.collection("users").document(phoneNo);
+        DocumentReference documentReference = firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid());
         documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -117,8 +117,9 @@ public class UsersCodeVerificationActivity extends AppCompatActivity {
                         String get_firebase_store_email = documentSnapshot.getString("storeEmail");
                         String get_firebase_store_phoneNo = documentSnapshot.getString("storePhoneNo");
                         String get_firebase_store_type = documentSnapshot.getString("storeType");
+                        String get_firebase_user_ID = documentSnapshot.getString("userID");
                         SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(UsersCodeVerificationActivity.this);
-                        sharedPreferencesManager.createCurrentUserDetailSharedPreference(get_firebase_store_name, get_firebase_store_email, get_firebase_store_phoneNo, get_firebase_store_type);
+                        sharedPreferencesManager.createCurrentUserDetailSharedPreference(get_firebase_store_name, get_firebase_store_email, get_firebase_store_phoneNo, get_firebase_store_type, get_firebase_user_ID);
 
                         Intent intent = new Intent(getApplicationContext(), UserDashboardActivity.class);
                         startActivity(intent);

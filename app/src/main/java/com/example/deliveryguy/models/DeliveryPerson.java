@@ -6,16 +6,26 @@ public class DeliveryPerson {
     private String deliveryPersonPhoneNo;
     private String deliveryPersonDOB;
     private String deliveryPersonGender;
+    private String deliveryPersonID;
 
-    public DeliveryPerson(String deliveryPersonName, String deliveryPersonEmail, String deliveryPersonPhoneNo, String deliveryPersonDOB, String deliveryPersonGender) {
+    public DeliveryPerson(String deliveryPersonName, String deliveryPersonEmail, String deliveryPersonPhoneNo, String deliveryPersonDOB, String deliveryPersonGender, String deliveryPersonID) {
         this.deliveryPersonName = deliveryPersonName;
         this.deliveryPersonEmail = deliveryPersonEmail;
         this.deliveryPersonPhoneNo = deliveryPersonPhoneNo;
         this.deliveryPersonDOB = deliveryPersonDOB;
         this.deliveryPersonGender = deliveryPersonGender;
+        this.deliveryPersonID = deliveryPersonID;
     }
 
     public DeliveryPerson() {
+    }
+
+    public String getDeliveryPersonID() {
+        return deliveryPersonID;
+    }
+
+    public void setDeliveryPersonID(String deliveryPersonID) {
+        this.deliveryPersonID = deliveryPersonID;
     }
 
     public String getDeliveryPersonName() {

@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.example.deliveryguy.R;
 import com.example.deliveryguy.activities.dashboards.DashboardActivity;
+import com.example.deliveryguy.activities.dashboards.DeliveryPersonDashboardActivity;
 import com.example.deliveryguy.activities.registerAndLogin.forUser.UsersRegisterActivity;
 import com.example.deliveryguy.bll.Validation;
 import com.example.deliveryguy.models.DeliveryPerson;
@@ -26,6 +27,7 @@ import com.example.deliveryguy.sharedPreferences.SharedPreferencesManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Calendar;
@@ -68,11 +70,12 @@ public class DeliveryGuyRegisterActivity extends AppCompatActivity {
                 String deliveryPersonName = etDeliveryPersonName.getEditText().getText().toString().trim();
                 String deliveryPersonEmail = etDeliveryPersonEmail.getEditText().getText().toString().trim();
                 String deliveryPersonPhoneNo = getIntent().getStringExtra("AddPhoneNo");
+                String deliveryPersonID = FirebaseAuth.getInstance().getUid();
 
-                DeliveryPerson addDeliveryPersonData = new DeliveryPerson(deliveryPersonName, deliveryPersonEmail, deliveryPersonPhoneNo, dateOfBirth, gender);
+                DeliveryPerson addDeliveryPersonData = new DeliveryPerson(deliveryPersonName, deliveryPersonEmail, deliveryPersonPhoneNo, dateOfBirth, gender, deliveryPersonID);
 
                 FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
-                firebaseFirestore.collection("delivery_person").document(deliveryPersonPhoneNo)
+                firebaseFirestore.collection("delivery_person").document(deliveryPersonID)
                         .set(addDeliveryPersonData)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -88,19 +91,9 @@ public class DeliveryGuyRegisterActivity extends AppCompatActivity {
                         });
 
                 SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(DeliveryGuyRegisterActivity.this);
-                sharedPreferencesManager.createCurrentDeliveryPersonDetailSharedPreferences(deliveryPersonName, deliveryPersonEmail, deliveryPersonPhoneNo, dateOfBirth, gender);
-
-                Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
-                Pair[] pairs = new Pair[4];
-                pairs[0] = new Pair<View, String>(logo, "logoImg");
-                pairs[1] = new Pair<View, String>(tvTitle, "pageTitle");
-                pairs[2] = new Pair<View, String>(tvDesc, "pageDesc");
-                pairs[3] = new Pair<View, String>(btnDeliveryGuyRegister, "pageButton");
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation
-                            (DeliveryGuyRegisterActivity.this, pairs);
-                    startActivity(intent, activityOptions.toBundle());
-                }
+                sharedPreferencesManager.createCurrentDeliveryPersonDetailSharedPreferences(deliveryPersonName, deliveryPersonEmail, deliveryPersonPhoneNo, dateOfBirth, gender, deliveryPersonID);
+                startActivity(new Intent(getApplicationContext(), DeliveryPersonDashboardActivity.class));
+                finish();
             }
         });
     }

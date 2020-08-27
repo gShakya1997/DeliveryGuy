@@ -30,6 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.deliveryguy.R;
+import com.example.deliveryguy.activities.SplashScreenActivity;
 import com.example.deliveryguy.models.DeliveryPerson;
 import com.example.deliveryguy.models.DeliveryPersonLocation;
 import com.example.deliveryguy.services.LocationService;
@@ -48,6 +49,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -70,7 +72,6 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
     private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     private Boolean locationPermissionGranted = false;
     private DeliveryPersonLocation deliveryPersonLocation;
-    private String currentDeliveryPersonPhoneNo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +79,6 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
         setContentView(R.layout.activity_delivery_person_dashboard);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         binding();
-        SharedPreferences sharedPreferences = this.getSharedPreferences("currentUserDetail", Context.MODE_PRIVATE);
-        currentDeliveryPersonPhoneNo = sharedPreferences.getString("deliveryPersonPhoneNo", null);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (locationPermissionGranted) {
             initializeMap();
@@ -139,7 +138,7 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
     private void getDeliveryPersonDetail() {
         if (deliveryPersonLocation == null) {
             deliveryPersonLocation = new DeliveryPersonLocation();
-            DocumentReference deliveryPersonDocumentReference = firebaseFirestore.collection("delivery_person").document(currentDeliveryPersonPhoneNo);
+            DocumentReference deliveryPersonDocumentReference = firebaseFirestore.collection("delivery_person").document(FirebaseAuth.getInstance().getUid());
             deliveryPersonDocumentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -182,7 +181,7 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
 
     private void saveDeliveryPersonLocation() {
         if (deliveryPersonLocation != null) {
-            DocumentReference documentReference = firebaseFirestore.collection("delivery_person_location").document(currentDeliveryPersonPhoneNo);
+            DocumentReference documentReference = firebaseFirestore.collection("delivery_person_location").document(FirebaseAuth.getInstance().getUid());
             documentReference.set(deliveryPersonLocation).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -311,7 +310,16 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        return false;
+        switch (item.getItemId()){
+            case R.id.btnDeliveryPersonSignOut:
+                SharedPreferences sharedPreferences = getSharedPreferences("currentUserDetail", MODE_PRIVATE);
+                sharedPreferences.edit().clear().commit();
+                FirebaseAuth.getInstance().signOut();
+                Toast.makeText(DeliveryPersonDashboardActivity.this, "Sign out!", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), SplashScreenActivity.class));
+                finish();
+        }
+        return true;
     }
 
     private void startLocationService() {

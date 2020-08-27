@@ -40,6 +40,7 @@ public class DashboardActivity extends AppCompatActivity {
         String storePhoneNo = hashMapCurrentUserData.get(SharedPreferencesManager.KEY_STORE_PHONE_NO);
         String storeEmail = hashMapCurrentUserData.get(SharedPreferencesManager.KEY_STORE_EMAIL);
         String storeType = hashMapCurrentUserData.get(SharedPreferencesManager.KEY_STORE_TYPE);
+        String userID = hashMapCurrentUserData.get(SharedPreferencesManager.KEY_USER_ID);
 
         if (storeType.equals("Online")) {
             rbOnline.setChecked(true);

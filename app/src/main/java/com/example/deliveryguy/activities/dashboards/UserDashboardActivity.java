@@ -59,10 +59,15 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.koalap.geofirestore.GeoFire;
+import com.koalap.geofirestore.GeoLocation;
+import com.koalap.geofirestore.GeoQuery;
+import com.koalap.geofirestore.GeoQueryEventListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -90,6 +95,10 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
     private String currentUserPhoneNo;
     private Boolean locationPermissionGranted = false;
 
+    public Boolean deliveryPersonFound = false;
+    private int radius = 1;
+    private String deliveryPersonID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,7 +117,8 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
         }
         navigationDrawer();
     }
-    private void actionButtons(){
+
+    private void actionButtons() {
         btnRequestDelivery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -118,17 +128,58 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
     }
 
     private void saveRequestDeliveryDetail() {
-        if (deliveryRequest != null){
-            DocumentReference documentReference = firebaseFirestore.collection("delivery_request").document(currentUserPhoneNo);
+        if (deliveryRequest != null) {
+            DocumentReference documentReference = firebaseFirestore.collection("delivery_request").document(FirebaseAuth.getInstance().getUid());
             documentReference.set(deliveryRequest).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isSuccessful()){
+                    if (task.isSuccessful()) {
                         btnRequestDelivery.setText("Requesting.........");
+                        getClosestDeliveryPerson();
                     }
                 }
             });
         }
+    }
+
+    private void getClosestDeliveryPerson() {
+        CollectionReference collectionReference = firebaseFirestore.collection("delivery_person_location");
+        GeoFire geoFire = new GeoFire(collectionReference);
+
+        GeoQuery query = geoFire.queryAtLocation(new GeoLocation(deliveryRequest.getRequestPoint().getLatitude(), deliveryRequest.getRequestPoint().getLongitude()), radius);
+        query.removeAllListeners();
+        query.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, GeoLocation location) {
+                if (!deliveryPersonFound) {
+                    deliveryPersonFound = true;
+                    deliveryPersonID = key;
+                }
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+                if (!deliveryPersonFound) {
+                    radius++;
+                    getClosestDeliveryPerson();
+                }
+            }
+
+            @Override
+            public void onGeoQueryError(Exception error) {
+
+            }
+        });
     }
 
     private void navigationDrawer() {
@@ -183,6 +234,7 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
                 FirebaseAuth.getInstance().signOut();
                 Toast.makeText(UserDashboardActivity.this, "Sign out!", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), SplashScreenActivity.class));
+                finish();
         }
         return true;
     }
@@ -317,7 +369,7 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
     private void saveUserLocation() {
         if (usersLocation != null) {
             DocumentReference documentReference = firebaseFirestore.collection("users_location")
-                    .document(currentUserPhoneNo);
+                    .document(FirebaseAuth.getInstance().getUid());
             documentReference.set(usersLocation).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -332,7 +384,7 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
     private void getUserDetail() {
         if (usersLocation == null) {
             usersLocation = new UsersLocation();
-            DocumentReference userDocumentReference = firebaseFirestore.collection("users").document(currentUserPhoneNo);
+            DocumentReference userDocumentReference = firebaseFirestore.collection("users").document(FirebaseAuth.getInstance().getUid());
             userDocumentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {

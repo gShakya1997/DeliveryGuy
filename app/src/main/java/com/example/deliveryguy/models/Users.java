@@ -1,13 +1,14 @@
 package com.example.deliveryguy.models;
 
 public class Users {
-    private String storeName, storeEmail, storePhoneNo, storeType;
+    private String storeName, storeEmail, storePhoneNo, storeType, userID;
 
-    public Users(String storeName, String storeEmail, String storePhoneNo, String storeType) {
+    public Users(String storeName, String storeEmail, String storePhoneNo, String storeType, String userID) {
         this.storeName = storeName;
         this.storeEmail = storeEmail;
         this.storePhoneNo = storePhoneNo;
         this.storeType = storeType;
+        this.userID = userID;
     }
 
     public Users() {
@@ -43,5 +44,13 @@ public class Users {
 
     public void setStoreType(String storeType) {
         this.storeType = storeType;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 }

@@ -29,9 +29,12 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.koalap.geofirestore.GeoFire;
+import com.koalap.geofirestore.GeoLocation;
 
 import java.util.HashMap;
 
@@ -43,7 +46,8 @@ public class LocationService extends Service {
     private final static long UPDATE_INTERVAL = 4 * 1000;  /* 4 secs */
     private final static long FASTEST_INTERVAL = 2000; /* 2 sec */
 
-    private String deliveryPersonName, deliveryPersonEmail, deliveryPersonPhoneNo, deliveryPersonDOB, deliveryPersonGender;
+    private String deliveryPersonName, deliveryPersonEmail, deliveryPersonPhoneNo, deliveryPersonDOB, deliveryPersonGender, deliveryPersonID;
+    private GeoPoint geoPoint;
 
     @Nullable
     @Override
@@ -114,10 +118,12 @@ public class LocationService extends Service {
                             deliveryPersonPhoneNo = hashMapCurrentUserData.get(SharedPreferencesManager.KEY_DELIVERY_PERSON_PHONE_NO);
                             deliveryPersonDOB = hashMapCurrentUserData.get(SharedPreferencesManager.KEY_DELIVERY_PERSON_DOB);
                             deliveryPersonGender = hashMapCurrentUserData.get(SharedPreferencesManager.KEY_DELIVERY_PERSON_GENDER);
+                            deliveryPersonID = hashMapCurrentUserData.get(SharedPreferencesManager.KEY_DELIVERY_PERSON_ID);
 
-                            DeliveryPerson deliveryPerson = new DeliveryPerson(deliveryPersonName, deliveryPersonEmail, deliveryPersonPhoneNo, deliveryPersonDOB, deliveryPersonGender);
-                            GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
+                            DeliveryPerson deliveryPerson = new DeliveryPerson(deliveryPersonName, deliveryPersonEmail, deliveryPersonPhoneNo, deliveryPersonDOB, deliveryPersonGender, deliveryPersonID);
+                            geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
                             DeliveryPersonLocation deliveryPersonLocation = new DeliveryPersonLocation(geoPoint, null, deliveryPerson);
+
                             saveUserLocation(deliveryPersonLocation);
                         }
                     }
@@ -126,11 +132,19 @@ public class LocationService extends Service {
     }
 
     private void saveUserLocation(final DeliveryPersonLocation deliveryPersonLocation) {
-
         try {
+            CollectionReference locationRef2 = FirebaseFirestore.getInstance()
+                    .collection("delivery_person_available");
+            GeoFire geoFire = new GeoFire(locationRef2);
+            geoFire.setLocation(deliveryPersonID, new GeoLocation(geoPoint.getLatitude(), geoPoint.getLongitude()), new GeoFire.CompletionListener() {
+                @Override
+                public void onComplete(String key, Exception exception) {
+                    System.out.println(key);
+                }
+            });
             DocumentReference locationRef = FirebaseFirestore.getInstance()
                     .collection("delivery_person_location")
-                    .document(deliveryPersonPhoneNo);
+                    .document(deliveryPersonID);
 
             locationRef.set(deliveryPersonLocation).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
