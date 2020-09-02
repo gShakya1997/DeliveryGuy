@@ -45,6 +45,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -52,8 +53,13 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
+
+import java.util.List;
+import java.util.Map;
 
 public class DeliveryPersonDashboardActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer_layout_delivery_person;
@@ -72,6 +78,7 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
     private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     private Boolean locationPermissionGranted = false;
     private DeliveryPersonLocation deliveryPersonLocation;
+    private String customerID = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +87,7 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         binding();
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        getAssignedCustomer();
         if (locationPermissionGranted) {
             initializeMap();
         } else {
@@ -107,6 +115,47 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
             googleMapDeliveryPerson.getUiSettings().setZoomControlsEnabled(true);
             googleMapDeliveryPerson.getUiSettings().setZoomGesturesEnabled(true);
         }
+    }
+
+    private void getAssignedCustomer() {
+        DocumentReference documentReference = firebaseFirestore.collection("delivery_person").document(FirebaseAuth.getInstance().getUid())
+                .collection("customer_ride").document("customer_ride_id");
+        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    System.out.println("DPDA:" +customerID);
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()){
+                        customerID = (String) documentSnapshot.get("customerID");
+                        System.out.println("DPDA:" +customerID);
+                        getPickUpRequestPoint();
+                    }
+                }
+            }
+        });
+    }
+
+    private void getPickUpRequestPoint() {
+        DocumentReference assignedRef = firebaseFirestore.collection("delivery_request").document(customerID);
+        assignedRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()){
+                        double locationLat = 0;
+                        double locationLong = 0;
+                        if (documentSnapshot.get("requestPoint") != null) {
+                            locationLat = documentSnapshot.getGeoPoint("requestPoint").getLatitude();
+                            locationLong = documentSnapshot.getGeoPoint("requestPoint").getLongitude();
+                        }
+                        LatLng latLng = new LatLng(locationLat, locationLong);
+                        googleMapDeliveryPerson.addMarker(new MarkerOptions().position(latLng).title("Pick up location"));
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -318,6 +367,7 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
                 Toast.makeText(DeliveryPersonDashboardActivity.this, "Sign out!", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), SplashScreenActivity.class));
                 finish();
+                break;
         }
         return true;
     }

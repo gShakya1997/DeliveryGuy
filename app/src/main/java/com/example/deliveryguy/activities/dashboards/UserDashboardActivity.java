@@ -53,6 +53,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -62,16 +63,21 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 import com.koalap.geofirestore.GeoFire;
 import com.koalap.geofirestore.GeoLocation;
 import com.koalap.geofirestore.GeoQuery;
 import com.koalap.geofirestore.GeoQueryEventListener;
+import com.koalap.geofirestore.LocationCallback;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserDashboardActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer_layout;
@@ -81,6 +87,7 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
     private EditText etSearchAddress;
     private Button btnRequestDelivery;
     private GoogleMap googleMap;
+    private Marker deliveryPersonMarker;
 
     private static final float DEFAULT_ZOOM = 15f;
     private static final int ERROR_DIALOG_REQUEST = 9001;
@@ -92,12 +99,11 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
     private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     private UsersLocation usersLocation;
     private DeliveryRequest deliveryRequest;
-    private String currentUserPhoneNo;
     private Boolean locationPermissionGranted = false;
 
     public Boolean deliveryPersonFound = false;
     private int radius = 1;
-    private String deliveryPersonID;
+    private String deliveryPersonFoundID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,8 +113,6 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
         initialize();
         actionButtons();
 
-        SharedPreferences sharedPreferences = this.getSharedPreferences("currentUserDetail", Context.MODE_PRIVATE);
-        currentUserPhoneNo = sharedPreferences.getString("storePhoneNo", null);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (locationPermissionGranted) {
             initializeMap();
@@ -143,7 +147,7 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
     }
 
     private void getClosestDeliveryPerson() {
-        CollectionReference collectionReference = firebaseFirestore.collection("delivery_person_location");
+        CollectionReference collectionReference = firebaseFirestore.collection("delivery_person_available");
         GeoFire geoFire = new GeoFire(collectionReference);
 
         GeoQuery query = geoFire.queryAtLocation(new GeoLocation(deliveryRequest.getRequestPoint().getLatitude(), deliveryRequest.getRequestPoint().getLongitude()), radius);
@@ -153,7 +157,15 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
             public void onKeyEntered(String key, GeoLocation location) {
                 if (!deliveryPersonFound) {
                     deliveryPersonFound = true;
-                    deliveryPersonID = key;
+                    deliveryPersonFoundID = key;
+
+                    DocumentReference documentReference = firebaseFirestore.collection("delivery_person").document(deliveryPersonFoundID)
+                            .collection("customer_ride").document("customer_ride_id");
+                    Map<String, Object> currentUserID = new HashMap<>();
+                    currentUserID.put("customerID", FirebaseAuth.getInstance().getUid());
+                    documentReference.set(currentUserID);
+                    getDeliveryPersonLocation();
+                    btnRequestDelivery.setText("Looking for delivery person location");
                 }
             }
 
@@ -178,6 +190,34 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
             @Override
             public void onGeoQueryError(Exception error) {
 
+            }
+        });
+    }
+
+    private void getDeliveryPersonLocation() {
+        DocumentReference documentReference = firebaseFirestore.collection("delivery_person_available").document(deliveryPersonFoundID);
+        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        double locationLat = 0;
+                        double locationLong = 0;
+                        btnRequestDelivery.setText("Delivery Person found");
+                        System.out.println("TESTING///"+documentSnapshot.getGeoPoint("l").getLongitude());
+                        if (documentSnapshot.get("l") != null) {
+                            locationLat = documentSnapshot.getGeoPoint("l").getLatitude();
+                            locationLong = documentSnapshot.getGeoPoint("l").getLongitude();
+                        }
+                        LatLng latLng = new LatLng(locationLat, locationLong);
+                        if (deliveryPersonMarker != null) {
+                            deliveryPersonMarker.remove();
+                        }
+                        deliveryPersonMarker = googleMap.addMarker(new MarkerOptions().title("Your delivery person")
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.navigatordeliveryperson)).position(latLng));
+                    }
+                }
             }
         });
     }

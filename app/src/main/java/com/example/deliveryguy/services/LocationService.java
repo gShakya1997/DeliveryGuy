@@ -84,6 +84,7 @@ public class LocationService extends Service {
         return START_NOT_STICKY;
     }
 
+
     private void getLocation() {
 
         // ---------------------------------- LocationRequest ------------------------------------
@@ -139,13 +140,13 @@ public class LocationService extends Service {
             geoFire.setLocation(deliveryPersonID, new GeoLocation(geoPoint.getLatitude(), geoPoint.getLongitude()), new GeoFire.CompletionListener() {
                 @Override
                 public void onComplete(String key, Exception exception) {
-                    System.out.println(key);
+                    Log.d(TAG, "onComplete: "+key);
                 }
             });
+
             DocumentReference locationRef = FirebaseFirestore.getInstance()
                     .collection("delivery_person_location")
                     .document(deliveryPersonID);
-
             locationRef.set(deliveryPersonLocation).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
