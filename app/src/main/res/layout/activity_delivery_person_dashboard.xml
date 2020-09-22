@@ -15,7 +15,7 @@
         android:background="@color/white"
         android:theme="@style/navigationTheme"
         app:headerLayout="@layout/menu_header"
-        app:menu="@menu/main_menu" />
+        app:menu="@menu/main_menu_delivery_person" />
 
     <LinearLayout
         android:id="@+id/main_content_delivery_person"
@@ -28,7 +28,7 @@
             android:id="@+id/map_delivery_person_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="80">
+            android:layout_weight="95">
 
             <fragment
                 android:id="@+id/deliveryPersonMap"
@@ -46,31 +46,60 @@
                 android:background="@color/gray_light"
                 android:focusable="true"
                 android:src="@drawable/menu" />
-        </RelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/rlSearchBar"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="20"
-            android:background="@drawable/custom_border"
-            android:elevation="10dp">
-
-            <EditText
-                android:id="@+id/etSearchAddress"
-                android:layout_width="300dp"
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchStatus"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:drawableLeft="@drawable/ic_baseline_location_on_24"
-                android:drawableRight="@drawable/ic_baseline_search_24"
-                android:hint="@string/enter_destination"
-                android:imeOptions="actionSearch"
-                android:inputType="text"
-                android:textColor="@color/black"
-                android:textSize="15sp" />
+                android:layout_margin="15dp"
+                android:background="@drawable/custom_button"
+                android:padding="8dp"
+                android:text="Offline"
+                android:textStyle="bold" />
         </RelativeLayout>
 
-    </LinearLayout>
+        <LinearLayout
+            android:id="@+id/customerDetailContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight="5"
+            android:orientation="vertical"
+            android:visibility="gone">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="20dp"
+                android:layout_gravity="center"
+                android:text="Customer Found"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="@color/blue_primary_dark"
+                android:fontFamily="@font/comfortaa"
+                android:paddingBottom="10dp" />
+
+            <TextView
+                android:id="@+id/tvStoreName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Store Name"
+                android:textSize="20sp"
+                android:fontFamily="@font/bungee_inline"
+                android:paddingBottom="10dp" />
+
+            <TextView
+                android:id="@+id/tvStorePhoneNo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Store Phone No"
+                android:paddingBottom="10dp" />
+
+        </LinearLayout>
+    </LinearLayout>
 </androidx.drawerlayout.widget.DrawerLayout>

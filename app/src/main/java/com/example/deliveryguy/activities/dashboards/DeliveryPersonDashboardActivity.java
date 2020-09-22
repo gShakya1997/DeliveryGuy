@@ -17,6 +17,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -25,8 +26,10 @@ import android.provider.Settings;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.deliveryguy.R;
@@ -50,7 +53,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -65,8 +70,10 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
     private DrawerLayout drawer_layout_delivery_person;
     private NavigationView main_delivery_person_navigation_view;
     private ImageView ivShowDeliveryPersonMenu;
-    private LinearLayout main_content_delivery_person;
+    private LinearLayout main_content_delivery_person, customerDetailContainer;
     private GoogleMap googleMapDeliveryPerson;
+    private SwitchMaterial switchStatus;
+    private TextView tvStoreName, tvStorePhoneNo;
 
     private static final float DEFAULT_ZOOM = 15f;
     private static final int ERROR_DIALOG_REQUEST = 9001;
@@ -87,12 +94,27 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         binding();
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        getAssignedCustomer();
-        if (locationPermissionGranted) {
-            initializeMap();
-        } else {
-            getLocationPermission();
-        }
+//        if (locationPermissionGranted) {
+//            initializeMap();
+//            getAssignedCustomer();
+//        } else {
+//            getLocationPermission();
+//        }
+        switchStatus.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    switchStatus.setText("Online");
+                    if (locationPermissionGranted) {
+                        initializeMap();
+                    } else {
+                        getLocationPermission();
+                    }
+                } else {
+                    switchStatus.setText("Offline");
+                }
+            }
+        });
         navigationDrawer();
     }
 
@@ -110,6 +132,7 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
+            getAssignedCustomer();
             googleMapDeliveryPerson.setMyLocationEnabled(true);
             googleMapDeliveryPerson.getUiSettings().setMyLocationButtonEnabled(true);
             googleMapDeliveryPerson.getUiSettings().setZoomControlsEnabled(true);
@@ -123,13 +146,31 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
         documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()){
-                    System.out.println("DPDA:" +customerID);
+                if (task.isSuccessful()) {
                     DocumentSnapshot documentSnapshot = task.getResult();
-                    if (documentSnapshot.exists()){
+                    if (documentSnapshot.exists()) {
                         customerID = (String) documentSnapshot.get("customerID");
-                        System.out.println("DPDA:" +customerID);
                         getPickUpRequestPoint();
+                        getCustomerInfo();
+                    }
+                }
+            }
+        });
+    }
+
+    private void getCustomerInfo() {
+        customerDetailContainer.setVisibility(View.VISIBLE);
+        DocumentReference documentReference = firebaseFirestore.collection("users").document(customerID);
+        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        String storeName = (String) documentSnapshot.get("storeName");
+                        String storePhoneNo = (String) documentSnapshot.get("storePhoneNo");
+                        tvStoreName.setText(storeName);
+                        tvStorePhoneNo.setText(storePhoneNo);
                     }
                 }
             }
@@ -141,9 +182,9 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
         assignedRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()){
+                if (task.isSuccessful()) {
                     DocumentSnapshot documentSnapshot = task.getResult();
-                    if (documentSnapshot.exists()){
+                    if (documentSnapshot.exists()) {
                         double locationLat = 0;
                         double locationLong = 0;
                         if (documentSnapshot.get("requestPoint") != null) {
@@ -151,7 +192,8 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
                             locationLong = documentSnapshot.getGeoPoint("requestPoint").getLongitude();
                         }
                         LatLng latLng = new LatLng(locationLat, locationLong);
-                        googleMapDeliveryPerson.addMarker(new MarkerOptions().position(latLng).title("Pick up location"));
+                        googleMapDeliveryPerson.addMarker(new MarkerOptions().position(latLng).title("Pick up location")
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
                     }
                 }
             }
@@ -359,7 +401,7 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.btnDeliveryPersonSignOut:
                 SharedPreferences sharedPreferences = getSharedPreferences("currentUserDetail", MODE_PRIVATE);
                 sharedPreferences.edit().clear().commit();
@@ -400,5 +442,9 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
         main_delivery_person_navigation_view = findViewById(R.id.main_delivery_person_navigation_view);
         ivShowDeliveryPersonMenu = findViewById(R.id.ivShowDeliveryPersonMenu);
         main_content_delivery_person = findViewById(R.id.main_content_delivery_person);
+        switchStatus = findViewById(R.id.switchStatus);
+        customerDetailContainer = findViewById(R.id.customerDetailContainer);
+        tvStoreName = findViewById(R.id.tvStoreName);
+        tvStorePhoneNo = findViewById(R.id.tvStorePhoneNo);
     }
 }

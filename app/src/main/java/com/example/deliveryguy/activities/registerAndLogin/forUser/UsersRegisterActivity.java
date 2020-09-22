@@ -90,19 +90,8 @@ public class UsersRegisterActivity extends AppCompatActivity {
 
                 SharedPreferencesManager sharedPreferencesManager = new SharedPreferencesManager(UsersRegisterActivity.this);
                 sharedPreferencesManager.createCurrentUserDetailSharedPreference(storeName, storeEmail, phoneNo, storeType, userID);
-
-                Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
-                //Animation
-                Pair[] pairs = new Pair[4];
-                pairs[0] = new Pair<View, String>(logo, "logoImg");
-                pairs[1] = new Pair<View, String>(tvTitle, "pageTitle");
-                pairs[2] = new Pair<View, String>(tvDesc, "pageDesc");
-                pairs[3] = new Pair<View, String>(btnRegister, "pageButton");
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation
-                            (UsersRegisterActivity.this, pairs);
-                    startActivity(intent, activityOptions.toBundle());
-                }
+                startActivity(new Intent(getApplicationContext(),DashboardActivity.class));
+                finish();
             }
         });
     }

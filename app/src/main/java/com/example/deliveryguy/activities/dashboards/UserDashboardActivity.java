@@ -183,7 +183,12 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
             public void onGeoQueryReady() {
                 if (!deliveryPersonFound) {
                     radius++;
-                    getClosestDeliveryPerson();
+                    if (radius > 10) {
+                        btnRequestDelivery.setText("Delivery person not available inside 10 km");
+                        radius = 0;
+                    } else {
+                        getClosestDeliveryPerson();
+                    }
                 }
             }
 
@@ -205,7 +210,6 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
                         double locationLat = 0;
                         double locationLong = 0;
                         btnRequestDelivery.setText("Delivery Person found");
-                        System.out.println("TESTING///"+documentSnapshot.getGeoPoint("l").getLongitude());
                         if (documentSnapshot.get("l") != null) {
                             locationLat = documentSnapshot.getGeoPoint("l").getLatitude();
                             locationLong = documentSnapshot.getGeoPoint("l").getLongitude();
@@ -214,6 +218,17 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
                         if (deliveryPersonMarker != null) {
                             deliveryPersonMarker.remove();
                         }
+                        Location location1 = new Location("");
+                        location1.setLatitude(usersLocation.getGeoPoint().getLatitude());
+                        location1.setLongitude(usersLocation.getGeoPoint().getLongitude());
+
+                        Location location2 = new Location("");
+                        location2.setLatitude(latLng.latitude);
+                        location2.setLongitude(latLng.longitude);
+
+                        float distance = location1.distanceTo(location2);
+                        float meterToKM = distance / 1000;
+                        btnRequestDelivery.setText("Driver Found: " + String.valueOf(meterToKM) + " KM away");
                         deliveryPersonMarker = googleMap.addMarker(new MarkerOptions().title("Your delivery person")
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.navigatordeliveryperson)).position(latLng));
                     }
