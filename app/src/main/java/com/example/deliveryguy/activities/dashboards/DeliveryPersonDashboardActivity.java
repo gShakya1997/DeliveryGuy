@@ -21,12 +21,15 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -51,6 +54,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -70,6 +74,7 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
     private DrawerLayout drawer_layout_delivery_person;
     private NavigationView main_delivery_person_navigation_view;
     private ImageView ivShowDeliveryPersonMenu;
+    private ImageButton btnCallCustomer;
     private LinearLayout main_content_delivery_person, customerDetailContainer;
     private GoogleMap googleMapDeliveryPerson;
     private SwitchMaterial switchStatus;
@@ -94,12 +99,6 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         binding();
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-//        if (locationPermissionGranted) {
-//            initializeMap();
-//            getAssignedCustomer();
-//        } else {
-//            getLocationPermission();
-//        }
         switchStatus.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -171,6 +170,24 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
                         String storePhoneNo = (String) documentSnapshot.get("storePhoneNo");
                         tvStoreName.setText(storeName);
                         tvStorePhoneNo.setText(storePhoneNo);
+                        btnCallCustomer.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                                callIntent.setData(Uri.parse("tel:" + storePhoneNo));
+                                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                                    // TODO: Consider calling
+                                    //    ActivityCompat#requestPermissions
+                                    // here to request the missing permissions, and then overriding
+                                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                    //                                          int[] grantResults)
+                                    // to handle the case where the user grants the permission. See the documentation
+                                    // for ActivityCompat#requestPermissions for more details.
+                                    return;
+                                }
+                                startActivity(callIntent);
+                            }
+                        });
                     }
                 }
             }
@@ -446,5 +463,6 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
         customerDetailContainer = findViewById(R.id.customerDetailContainer);
         tvStoreName = findViewById(R.id.tvStoreName);
         tvStorePhoneNo = findViewById(R.id.tvStorePhoneNo);
+        btnCallCustomer = findViewById(R.id.btnCallCustomer);
     }
 }
