@@ -16,6 +16,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Camera;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -35,6 +36,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.directions.route.AbstractRouting;
+import com.directions.route.Route;
+import com.directions.route.RouteException;
+import com.directions.route.Routing;
+import com.directions.route.RoutingListener;
 import com.example.deliveryguy.R;
 import com.example.deliveryguy.activities.SplashScreenActivity;
 import com.example.deliveryguy.activities.dashboards.DashboardActivity;
@@ -44,6 +50,7 @@ import com.example.deliveryguy.models.Users;
 import com.example.deliveryguy.models.UsersLocation;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -55,10 +62,13 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -79,15 +89,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UserDashboardActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
+public class UserDashboardActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener, RoutingListener {
     private DrawerLayout drawer_layout;
     private NavigationView main_navigation_view;
     private ImageView ivShowMenu;
     private LinearLayout main_content;
-    private EditText etSearchAddress;
     private Button btnRequestDelivery;
     private GoogleMap googleMap;
     private Marker deliveryPersonMarker;
+    private EditText etReceiverPhoneNo, etDeliveryDetail;
 
     private static final float DEFAULT_ZOOM = 15f;
     private static final int ERROR_DIALOG_REQUEST = 9001;
@@ -103,6 +113,8 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
 
     public Boolean deliveryPersonFound = false;
     private int radius = 1;
+    private List<Polyline> polylines;
+    private static final int[] COLORS = new int[]{R.color.primary_dark_material_light};
     private String deliveryPersonFoundID;
 
     @Override
@@ -110,7 +122,7 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_dashboard);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        initialize();
+        binding();
         actionButtons();
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -158,7 +170,6 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
                 if (!deliveryPersonFound) {
                     deliveryPersonFound = true;
                     deliveryPersonFoundID = key;
-
                     DocumentReference documentReference = firebaseFirestore.collection("delivery_person").document(deliveryPersonFoundID)
                             .collection("customer_ride").document("customer_ride_id");
                     Map<String, Object> currentUserID = new HashMap<>();
@@ -226,6 +237,11 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
                         location2.setLatitude(latLng.latitude);
                         location2.setLongitude(latLng.longitude);
 
+                        LatLng startLocation = new LatLng(usersLocation.getGeoPoint().getLatitude(), usersLocation.getGeoPoint().getLatitude());
+                        LatLng endLocation = new LatLng(latLng.latitude, latLng.longitude);
+
+                        getRouteToMarker(startLocation, endLocation);
+
                         float distance = location1.distanceTo(location2);
                         float meterToKM = distance / 1000;
                         btnRequestDelivery.setText("Driver Found: " + String.valueOf(meterToKM) + " KM away");
@@ -235,6 +251,17 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
                 }
             }
         });
+    }
+
+    private void getRouteToMarker(LatLng startLocation, LatLng endLocation) {
+        Routing routing = new Routing.Builder()
+                .key(getString(R.string.google_maps_key))
+                .travelMode(AbstractRouting.TravelMode.DRIVING)
+                .withListener(this)
+                .alternativeRoutes(false)
+                .waypoints(startLocation, endLocation)
+                .build();
+        routing.execute();
     }
 
     private void navigationDrawer() {
@@ -305,7 +332,7 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
     public void onMapReady(GoogleMap googleMap) {
         if (locationPermissionGranted) {
             getUserDetail();
-            initializeSearch();
+//            initializeSearch();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
@@ -363,35 +390,35 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
         mapFragment.getMapAsync(this);
     }
 
-    private void initializeSearch() {
-        etSearchAddress.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE
-                        || actionId == KeyEvent.ACTION_DOWN || actionId == KeyEvent.KEYCODE_ENTER) {
-                    geoLocate();
-                }
-                return false;
-            }
-        });
-    }
+//    private void initializeSearch() {
+//        etSearchAddress.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            @Override
+//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+//                if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE
+//                        || actionId == KeyEvent.ACTION_DOWN || actionId == KeyEvent.KEYCODE_ENTER) {
+//                    geoLocate();
+//                }
+//                return false;
+//            }
+//        });
+//    }
 
-    private void geoLocate() {
-        String searchLocation = etSearchAddress.getText().toString().trim();
-        Geocoder geocoder = new Geocoder(UserDashboardActivity.this);
-        List<Address> addressList = new ArrayList<>();
-        try {
-            addressList = geocoder.getFromLocationName(searchLocation, 1);
-        } catch (IOException e) {
-            Toast.makeText(this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-        if (addressList.size() > 0) {
-            Address address = addressList.get(0);
-            Toast.makeText(this, "" + address.toString(), Toast.LENGTH_SHORT).show();
-            System.out.println(address.toString());
-//            moveCamera(new LatLng(address.getLatitude(), address.getLongitude()), DEFAULT_ZOOM);
-        }
-    }
+//    private void geoLocate() {
+//        String searchLocation = etSearchAddress.getText().toString().trim();
+//        Geocoder geocoder = new Geocoder(UserDashboardActivity.this);
+//        List<Address> addressList = new ArrayList<>();
+//        try {
+//            addressList = geocoder.getFromLocationName(searchLocation, 1);
+//        } catch (IOException e) {
+//            Toast.makeText(this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+//        }
+//        if (addressList.size() > 0) {
+//            Address address = addressList.get(0);
+//            Toast.makeText(this, "" + address.toString(), Toast.LENGTH_SHORT).show();
+//            System.out.println(address.toString());
+////            moveCamera(new LatLng(address.getLatitude(), address.getLongitude()), DEFAULT_ZOOM);
+//        }
+//    }
 
     private void getDeviceLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -415,6 +442,8 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
                     deliveryRequest = new DeliveryRequest();
                     deliveryRequest.setRequestPoint(geoPoint);
                     deliveryRequest.setTimeStamp(null);
+                    deliveryRequest.setDeliveryInstruction(etDeliveryDetail.getText().toString());
+                    deliveryRequest.setReceiverPhoneNo(etReceiverPhoneNo.getText().toString());
                     saveUserLocation();
                 }
             }
@@ -514,12 +543,58 @@ public class UserDashboardActivity extends AppCompatActivity implements OnMapRea
         alert.show();
     }
 
-    private void initialize() {
+    private void binding() {
         main_navigation_view = findViewById(R.id.main_navigation_view);
         drawer_layout = findViewById(R.id.drawer_layout);
         ivShowMenu = findViewById(R.id.ivShowMenu);
         main_content = findViewById(R.id.main_content);
-        etSearchAddress = findViewById(R.id.etSearchAddress);
         btnRequestDelivery = findViewById(R.id.btnRequestDelivery);
+        etReceiverPhoneNo = findViewById(R.id.etReceiverPhoneNo);
+        etDeliveryDetail = findViewById(R.id.etDeliveryDetail);
+    }
+
+    @Override
+    public void onRoutingFailure(RouteException e) {
+        if (e != null) {
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "Something went wrong, Try again", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRoutingStart() {
+
+    }
+
+    @Override
+    public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex) {
+        if (polylines.size() > 0) {
+            for (Polyline poly : polylines) {
+                poly.remove();
+            }
+        }
+
+        polylines = new ArrayList<>();
+        //add route(s) to the map.
+        for (int i = 0; i < route.size(); i++) {
+
+            //In case of more than 5 alternative routes
+            int colorIndex = i % COLORS.length;
+
+            PolylineOptions polyOptions = new PolylineOptions();
+            polyOptions.color(getResources().getColor(COLORS[colorIndex]));
+            polyOptions.width(10 + i * 3);
+            polyOptions.addAll(route.get(i).getPoints());
+            Polyline polyline = this.googleMap.addPolyline(polyOptions);
+            polylines.add(polyline);
+
+            Toast.makeText(getApplicationContext(), "Route " + (i + 1) + ": distance - " + route.get(i).getDistanceValue() + ": duration - " + route.get(i).getDurationValue(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRoutingCancelled() {
+
     }
 }

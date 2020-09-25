@@ -35,6 +35,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.directions.route.AbstractRouting;
+import com.directions.route.Route;
+import com.directions.route.RouteException;
+import com.directions.route.Routing;
+import com.directions.route.RoutingListener;
 import com.example.deliveryguy.R;
 import com.example.deliveryguy.activities.SplashScreenActivity;
 import com.example.deliveryguy.models.DeliveryPerson;
@@ -53,6 +58,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -67,10 +74,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DeliveryPersonDashboardActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
+public class DeliveryPersonDashboardActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener, RoutingListener {
     private DrawerLayout drawer_layout_delivery_person;
     private NavigationView main_delivery_person_navigation_view;
     private ImageView ivShowDeliveryPersonMenu;
@@ -91,6 +99,8 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
     private Boolean locationPermissionGranted = false;
     private DeliveryPersonLocation deliveryPersonLocation;
     private String customerID = "";
+    private List<Polyline> polylines;
+    private static final int[] COLORS = new int[]{R.color.primary_dark_material_light};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -211,10 +221,22 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
                         LatLng latLng = new LatLng(locationLat, locationLong);
                         googleMapDeliveryPerson.addMarker(new MarkerOptions().position(latLng).title("Pick up location")
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
+                        getRouteToMarker(latLng);
                     }
                 }
             }
         });
+    }
+
+    private void getRouteToMarker(LatLng latLng) {
+        Routing routing = new Routing.Builder()
+                .key(getString(R.string.google_maps_key))
+                .travelMode(AbstractRouting.TravelMode.DRIVING)
+                .withListener(this)
+                .alternativeRoutes(false)
+                .waypoints(new LatLng(deliveryPersonLocation.getGeoPoint().getLatitude(), deliveryPersonLocation.getGeoPoint().getLongitude()), latLng)
+                .build();
+        routing.execute();
     }
 
     @Override
@@ -464,5 +486,50 @@ public class DeliveryPersonDashboardActivity extends AppCompatActivity implement
         tvStoreName = findViewById(R.id.tvStoreName);
         tvStorePhoneNo = findViewById(R.id.tvStorePhoneNo);
         btnCallCustomer = findViewById(R.id.btnCallCustomer);
+    }
+
+    @Override
+    public void onRoutingFailure(RouteException e) {
+        if (e != null) {
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "Something went wrong, Try again", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRoutingStart() {
+
+    }
+
+    @Override
+    public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex) {
+        if(polylines.size()>0) {
+            for (Polyline poly : polylines) {
+                poly.remove();
+            }
+        }
+
+        polylines = new ArrayList<>();
+        //add route(s) to the map.
+        for (int i = 0; i <route.size(); i++) {
+
+            //In case of more than 5 alternative routes
+            int colorIndex = i % COLORS.length;
+
+            PolylineOptions polyOptions = new PolylineOptions();
+            polyOptions.color(getResources().getColor(COLORS[colorIndex]));
+            polyOptions.width(10 + i * 3);
+            polyOptions.addAll(route.get(i).getPoints());
+            Polyline polyline = this.googleMapDeliveryPerson.addPolyline(polyOptions);
+            polylines.add(polyline);
+
+            Toast.makeText(getApplicationContext(),"Route "+ (i+1) +": distance - "+ route.get(i).getDistanceValue()+": duration - "+ route.get(i).getDurationValue(),Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRoutingCancelled() {
+
     }
 }

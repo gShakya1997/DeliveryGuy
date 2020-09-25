@@ -20,7 +20,7 @@
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.dashboards.DeliveryPersonDashboardActivity"></activity>
+        <activity android:name=".activities.dashboards.DeliveryPersonDashboardActivity"/>
         <activity android:name=".activities.registerAndLogin.forDeliveryPerson.DeliveryGuyRegisterActivity" />
         <activity android:name=".activities.registerAndLogin.forDeliveryPerson.DeliveryGuyCodeVerificationActivity" />
         <activity android:name=".activities.dashboards.UserDashboardActivity" />

@@ -9,13 +9,17 @@ public class DeliveryRequest {
     private GeoPoint requestPoint;
     private @ServerTimestamp
     Date timeStamp;
-
-    public DeliveryRequest(GeoPoint requestPoint, Date timeStamp) {
-        this.requestPoint = requestPoint;
-        this.timeStamp = timeStamp;
-    }
+    private String receiverPhoneNo;
+    private String deliveryInstruction;
 
     public DeliveryRequest() {
+    }
+
+    public DeliveryRequest(GeoPoint requestPoint, Date timeStamp, String receiverPhoneNo, String deliveryInstruction) {
+        this.requestPoint = requestPoint;
+        this.timeStamp = timeStamp;
+        this.receiverPhoneNo = receiverPhoneNo;
+        this.deliveryInstruction = deliveryInstruction;
     }
 
     public GeoPoint getRequestPoint() {
@@ -32,5 +36,21 @@ public class DeliveryRequest {
 
     public void setTimeStamp(Date timeStamp) {
         this.timeStamp = timeStamp;
+    }
+
+    public String getReceiverPhoneNo() {
+        return receiverPhoneNo;
+    }
+
+    public void setReceiverPhoneNo(String receiverPhoneNo) {
+        this.receiverPhoneNo = receiverPhoneNo;
+    }
+
+    public String getDeliveryInstruction() {
+        return deliveryInstruction;
+    }
+
+    public void setDeliveryInstruction(String deliveryInstruction) {
+        this.deliveryInstruction = deliveryInstruction;
     }
 }

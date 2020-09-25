@@ -41,6 +41,7 @@ dependencies {
     implementation 'com.koalap:geofirestore-android:1.2.2'
     implementation 'com.google.firebase:firebase-database:19.4.0'
     testImplementation 'junit:junit:4.13'
+
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
@@ -50,4 +51,5 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.chaos.view:pinview:1.4.3'
     implementation 'com.hbb20:ccp:2.3.1'
+    implementation 'com.github.jd-alexander:library:1.1.0'
 }
